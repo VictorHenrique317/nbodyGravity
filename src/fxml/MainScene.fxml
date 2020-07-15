@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXDrawer?>
+<?import com.jfoenix.controls.JFXHamburger?>
+<?import com.jfoenix.controls.JFXRadioButton?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.ui.MainScene">
+   <top>
+      <HBox minHeight="75.0" prefHeight="75.0" prefWidth="1200.0" style="-fx-background-color: #252A36;" BorderPane.alignment="CENTER">
+         <children>
+            <HBox alignment="TOP_CENTER" prefHeight="134.0" prefWidth="263.0" spacing="10.0">
+               <children>
+                  <ImageView fx:id="firstArrow" fitHeight="57.0" fitWidth="50.0" onMouseClicked="#onFirstArrowClick" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="file:/C:/Java%20Programs/nbodyGravity/src/icons/next_arrow.png" />
+                     </image>
+                     <HBox.margin>
+                        <Insets left="10.0" top="10.0" />
+                     </HBox.margin>
+                  </ImageView>
+                  <ImageView fx:id="secondArrow" fitHeight="57.0" fitWidth="50.0" onMouseClicked="#onSecondArrowClick" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="file:/C:/Java%20Programs/nbodyGravity/src/icons/next_arrow.png" />
+                     </image>
+                     <HBox.margin>
+                        <Insets top="10.0" />
+                     </HBox.margin>
+                  </ImageView>
+                  <ImageView fx:id="thirdArrow" fitHeight="57.0" fitWidth="50.0" onMouseClicked="#onThirdArrowClick" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="file:/C:/Java%20Programs/nbodyGravity/src/icons/next_arrow.png" />
+                     </image>
+                     <HBox.margin>
+                        <Insets top="10.0" />
+                     </HBox.margin>
+                  </ImageView>
+                  <ImageView fx:id="fourthArrow" fitHeight="57.0" fitWidth="50.0" onMouseClicked="#onFourthArrowClick" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="file:/C:/Java%20Programs/nbodyGravity/src/icons/next_arrow.png" />
+                     </image>
+                     <HBox.margin>
+                        <Insets right="5.0" top="10.0" />
+                     </HBox.margin>
+                  </ImageView>
+               </children>
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </HBox>
+            <HBox alignment="TOP_CENTER" prefHeight="134.0" prefWidth="239.0">
+               <children>
+                  <JFXRadioButton fx:id="hyperwarpButton" onAction="#onHyperwarpClick" prefHeight="50.0" prefWidth="230.0" text="Hyperwarp" textAlignment="CENTER" textFill="WHITE">
+                     <HBox.margin>
+                        <Insets top="10.0" />
+                     </HBox.margin>
+                     <font>
+                        <Font size="29.0" />
+                     </font>
+                  </JFXRadioButton>
+               </children>
+            </HBox>
+            <HBox layoutX="273.0" layoutY="10.0" prefHeight="100.0" prefWidth="200.0" />
+         </children>
+      </HBox>
+   </top>
+   <right>
+      <VBox minWidth="200.0" prefHeight="722.0" style="-fx-background-color: #383F51;" BorderPane.alignment="CENTER">
+         <children>
+            <JFXHamburger fx:id="hamburguer" onMouseClicked="#handleDrawer" prefHeight="77.0" prefWidth="100.0" />
+            <JFXDrawer fx:id="drawer" defaultDrawerSize="200.0" prefHeight="661.0" prefWidth="100.0" />
+         </children>
+      </VBox>
+   </right>
+   <center>
+      <HBox fx:id="centerBox" prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: #AD2B00;" BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>
