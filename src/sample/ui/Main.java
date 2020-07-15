@@ -81,7 +81,7 @@ public class Main extends Application {
         //sun radius 696_340e3
         Star sun = Star.sun();
         ImageView sunFlare = Star.addFlare(sun);
-        objectGroup.getChildren().add(sunFlare);
+//        objectGroup.getChildren().add(sunFlare);
 
         Body mercury = Planet.mercury();
         Body thirdBody = new Body(2_439e5, 0, 0, -6.1e10, 6E10, "thirdBody", null);
