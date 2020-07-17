@@ -1,0 +1,20 @@
+#lockCameraBox:hover{
+    -fx-background-color:#6D7179;
+    -fx-cursor:hand;
+}
+
+.jfx-hamburger StackPane {-fx-background-color: white; }
+
+#hamburger:hover{
+    -fx-cursor:hand;
+}
+
+#firstArrow:hover{ -fx-cursor:hand; }
+#secondArrow:hover{ -fx-cursor:hand; }
+#thirdArrow:hover{ -fx-cursor:hand; }
+#fourthArrow:hover{ -fx-cursor:hand; }
+
+#drawerIcon:hover{
+    -fx-background-color:#7A7F8B;
+    -fx-cursor:hand;
+}
