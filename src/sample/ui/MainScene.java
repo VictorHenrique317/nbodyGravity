@@ -5,11 +5,14 @@ import com.jfoenix.controls.JFXHamburger;
 import com.jfoenix.controls.JFXRadioButton;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.SubScene;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import sample.physics.models.Body;
 import sample.physics.GravityPool;
@@ -34,6 +37,8 @@ public class MainScene {
     );
     private VBox drawerContent;
     @FXML
+    private HBox lockCameraBox;
+    @FXML
     private HBox centerBox;
     @FXML
     private JFXHamburger hamburger;
@@ -48,6 +53,16 @@ public class MainScene {
     private int hyperwarpMultiplier = 1;
 
     public void initialize(){
+        hamburger.setOnMouseEntered((mouseEvent -> {
+            for (Node stackPane: hamburger.getChildren()){
+                stackPane.setStyle("-fx-background-color: black;");
+            }
+        }));
+        hamburger.setOnMouseExited((mouseEvent -> {
+            for (Node stackPane: hamburger.getChildren()){
+                stackPane.setStyle("-fx-background-color: white;");
+            }
+        }));
         arrows = List.of(firstArrow, secondArrow, thirdArrow, fourthArrow);
         for (ImageView arrow: arrows){
             arrow.setImage(emptyArrow);
@@ -70,13 +85,40 @@ public class MainScene {
         bodies = Main.getBodies();
         for (Body body: bodies){
             DrawerIcon icon = new DrawerIcon(body);
-//            drawerIcons.add(icon);
             drawerContent.getChildren().add(icon);
         }
 
     }
 
 
+    @FXML
+    private void onLockCamera(){
+        Main.lockCamera();
+        Image img;
+        Label label = null;
+        ImageView icon = null;
+        for(Node node: lockCameraBox.getChildren()){
+            if (node instanceof ImageView)icon = (ImageView) node;
+            if (node instanceof Label) label = (Label) node;
+        }
+        assert icon != null;
+        assert label != null;
+        boolean isCameraLocked = Main.isIsCameraLocked();
+        if (isCameraLocked){
+            // unlock option
+            img = new Image(Objects.requireNonNull(
+                    getClass().getClassLoader().getResource("unlock.png")).toExternalForm());
+
+            icon.setImage(img);
+            label.setText("Unlock camera");
+        }else{
+            // lock option
+            img = new Image(Objects.requireNonNull(
+                    getClass().getClassLoader().getResource("lock.png")).toExternalForm());
+            icon.setImage(img);
+            label.setText("Lock camera");
+        }
+    }
     @FXML
     private void handleDrawer(){
         if (drawer.isOpened()){
@@ -87,14 +129,14 @@ public class MainScene {
     }
 
     @FXML
-    private void onHyperwarpClick(){
+    private void onHyperwarpClick(){ // maximum speed is 400x
         if (hyperwarpMultiplier == 1){ // enable
             System.out.println("Activating hyperwarp");
-            hyperwarpMultiplier = 4;
+            hyperwarpMultiplier = 5;
             pool.changeSpeed(this.speed * hyperwarpMultiplier);
             return;
         }
-        if (hyperwarpMultiplier == 4){ // disable
+        if (hyperwarpMultiplier == 5){ // disable
             System.out.println("Deactivating hyperwarp");
             hyperwarpMultiplier = 1;
             pool.changeSpeed(this.speed * hyperwarpMultiplier);
@@ -142,7 +184,6 @@ public class MainScene {
         if (arrow.getImage() == emptyArrow) arrow.setImage(filledArrow);
         pool.changeSpeed(speed);
         this.speed = speed;
-        System.out.println("Changing speed to " + speed);
     }
 
     public void accelerateSimulation(){

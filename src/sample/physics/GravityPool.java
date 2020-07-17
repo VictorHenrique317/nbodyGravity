@@ -16,15 +16,14 @@ public final class GravityPool {
 
     private double speed;
     private double delay;
-    private boolean isRunning;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private boolean showPath;
+    private double scaleReduction;
 
     public GravityPool() {
         bodies = new ArrayList<>();
         timeLines = new ArrayList<>();
         this.speed = 1;
-        this.isRunning = false;
     }
 
     public void stopSimulation() {
@@ -70,16 +69,16 @@ public final class GravityPool {
         for (Body i : bodies) {
             if (showPath) {
                 til = new Timeline(new KeyFrame(
-                        Duration.millis(delay / speed),
+                        Duration.millis(delay/(speed/2)),
                         (e) -> {
-                            i.beAttractedBy(bodies, delay / 1000d, G);
+                            i.beAttractedBy(bodies, delay * speed / 1000d, G);
                             i.showPath();
                         })
                 );
             }else{
                 til = new Timeline(new KeyFrame(
-                        Duration.millis(delay / speed),
-                        (e) -> i.beAttractedBy(bodies, delay / 1000d, G))
+                        Duration.millis(delay/(speed/2)),
+                        (e) -> i.beAttractedBy(bodies, delay * speed / 1000d, G))
                 );
             }
             til.setCycleCount(Timeline.INDEFINITE);
@@ -88,12 +87,16 @@ public final class GravityPool {
     }
 
     public void changeSpeed(double speed){
+        speed *= scaleReduction / 50;
         stopSimulation();
         if (speed > 0) this.speed = speed;
+        System.out.println("Changing speed to " + this.speed);
         startSimulation(showPath);
     }
 
     public void reduceScaleBy(double scaleReduction) {
+        this.scaleReduction = scaleReduction;
+        double radiusBaseValue = 2e3;
         if (scaleReduction == 1){
             this.G = 6.66e-11;
             return;
@@ -104,7 +107,11 @@ public final class GravityPool {
             body.setTranslateZ(body.getTranslateZ()/scaleReduction);
             double xFactor = 1 / Math.sqrt(scaleReduction);
             body.setxVelocity(body.getXVelocity() * xFactor);
-            body.setRadius(body.getRadius()/Math.sqrt(scaleReduction*10));
+
+            double exponent = 0;
+            for (double i = body.getRadius(); i >= 10; i /=10){ exponent++; }
+
+            body.setRadius(Math.pow(radiusBaseValue, exponent/4));
             System.out.println("Scaled velocity is " + body.getXVelocity());
             System.out.println("    Scaled radius is " + body.getRadius());
 

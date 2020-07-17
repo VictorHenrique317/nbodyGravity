@@ -69,10 +69,6 @@ public class Body extends Sphere {
         double yOffset = body.getTranslateY() - this.getTranslateY();
         double zOffset = body.getTranslateZ() - this.getTranslateZ();
         double distance = distanceTo(body);
-        // precision will always be < 1, it represents the seconds
-        // the closer precision is to zero, the more precise the simulation
-        // 1 pixel = 1 meter
-
 
         double force = simulationG * (this.mass * body.mass / Math.pow(distance, 2)); // newton's gravitation
         if (distance <= this.getRadius()){
@@ -101,6 +97,7 @@ public class Body extends Sphere {
         this.setTranslateX(this.getTranslateX() + xDistance);
         this.setTranslateY(this.getTranslateY() + yDistance);
         this.setTranslateZ(this.getTranslateZ() + zDistance);
+//        System.out.println("horizontal velocity " + xVelocity);
 //        System.out.println("=== DISTANCE === " + distance);
 //        System.out.println("Force on x axis " + forceX);
 //        System.out.println("    position " + this.getTranslateX());

@@ -4,6 +4,7 @@
 <?import com.jfoenix.controls.JFXHamburger?>
 <?import com.jfoenix.controls.JFXRadioButton?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -11,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.ui.MainScene">
+<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" stylesheets="stylesheet.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.ui.MainScene">
    <top>
       <HBox minHeight="75.0" prefHeight="75.0" prefWidth="1200.0" style="-fx-background-color: #252A36;" BorderPane.alignment="CENTER">
          <children>
@@ -66,14 +67,27 @@
                   </JFXRadioButton>
                </children>
             </HBox>
-            <HBox layoutX="273.0" layoutY="10.0" prefHeight="100.0" prefWidth="200.0" />
+            <HBox fx:id="lockCameraBox" alignment="CENTER" onMouseClicked="#onLockCamera" prefHeight="75.0" prefWidth="246.0" spacing="20.0">
+               <children>
+                  <ImageView fitHeight="47.0" fitWidth="37.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="file:/C:/Java%20Programs/nbodyGravity/src/icons/lock.png" />
+                     </image>
+                  </ImageView>
+                  <Label text="Lock camera" textFill="WHITE">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
          </children>
       </HBox>
    </top>
    <right>
       <VBox minWidth="200.0" prefHeight="722.0" style="-fx-background-color: #383F51;" BorderPane.alignment="CENTER">
          <children>
-            <JFXHamburger fx:id="hamburguer" onMouseClicked="#handleDrawer" prefHeight="77.0" prefWidth="100.0" />
+            <JFXHamburger fx:id="hamburger" onMouseClicked="#handleDrawer" prefHeight="77.0" prefWidth="100.0" />
             <JFXDrawer fx:id="drawer" defaultDrawerSize="200.0" prefHeight="661.0" prefWidth="100.0" />
          </children>
       </VBox>

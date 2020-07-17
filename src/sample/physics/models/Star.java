@@ -33,10 +33,16 @@ public class Star extends Body {
         ImageView flare = new ImageView(image);
         flare.setFitWidth(2e7);
         flare.setFitHeight(2e7);
+        flare.setLayoutX(-1e7);
+        flare.setLayoutY(-1e7);
 
-        flare.translateXProperty().bind(sun.translateXProperty().subtract(flare.getFitWidth()/2));
-        flare.translateYProperty().bind(sun.translateYProperty().subtract(flare.getFitHeight()/2));
+//        flare.translateXProperty().bind(sun.translateXProperty().subtract(flare.getFitWidth()/2));
+//        flare.translateYProperty().bind(sun.translateYProperty().subtract(flare.getFitHeight()/2));
+//        flare.translateZProperty().bind(sun.translateZProperty());
+        flare.translateXProperty().bind(sun.translateXProperty());
+        flare.translateYProperty().bind(sun.translateYProperty());
         flare.translateZProperty().bind(sun.translateZProperty());
+
 
 
 

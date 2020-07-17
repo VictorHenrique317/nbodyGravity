@@ -3,7 +3,6 @@ package sample.ui;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -20,13 +19,15 @@ final class DrawerIcon extends HBox{
         bodyName.setTextFill(Color.WHITE);
         bodyName.setFont(new Font(18));
         this.setOnMouseClicked((mouseEvent -> {
-            Main.lockCameraAt(body);
+            Main.trackObject(body);
         }));
+        this.setId("drawerIcon");
         this.setSpacing(10);
         this.setPadding(new Insets(0,0,0,20));
         this.setAlignment(Pos.CENTER_LEFT);
         this.getChildren().add(icon);
         this.getChildren().add(bodyName);
+        this.setMinHeight(60);
     }
 
 }

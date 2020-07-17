@@ -22,21 +22,24 @@ import java.util.*;
 import java.util.List;
 
 public class Main extends Application {
+    // ================================= Visuals ================================= //
+    private static Stage primaryStage;
+    private MainScene controller;
+    public static final Camera camera = new PerspectiveCamera(true);
+    private static boolean isCameraLocked = false;
+    // ================================= Mechanics ================================= //
     public static final Group objectGroup = new Group();
     private static final Group mainGroup = new Group();
+    private static final GravityPool pool = new GravityPool();
+    private static Body lockedObject;
+    // ================================= Rotation ================================= //
+    private static double xAnchor, yAnchor, xAngleAnchor, yAngleAnchor;
+    private static Collection<Body> bodies;
+    private static SimpleDoubleProperty xAngle = new SimpleDoubleProperty(0);
+    private static SimpleDoubleProperty yAngle = new SimpleDoubleProperty(0);
     private static Rotate xRotate;
     private static Rotate yRotate;
 
-    public static final Camera camera = new PerspectiveCamera(true);
-    private static Collection<Body> bodies;
-    private MainScene controller;
-
-    private static double xAnchor, yAnchor, xAngleAnchor, yAngleAnchor;
-    private static SimpleDoubleProperty xAngle = new SimpleDoubleProperty(0);
-    private static SimpleDoubleProperty yAngle = new SimpleDoubleProperty(0);
-
-    private static final GravityPool pool = new GravityPool();
-    private static Stage primaryStage;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -44,14 +47,14 @@ public class Main extends Application {
 //        Camera camera = new PerspectiveCamera(true);
         camera.setNearClip(0.01);
         camera.setFarClip(10_000_000);
-        camera.setTranslateZ(-2202020);
+        camera.setTranslateZ(-2_202_020);
 
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getClassLoader().getResource("MainScene.fxml"));
         Parent root = fxmlLoader.load();
         controller = fxmlLoader.getController();
         Scene mainScene = new Scene(root, 1200, 800, true);
-        SubScene subScene = new SubScene(objectGroup, 1200, 700, true, SceneAntialiasing.BALANCED);
+        SubScene subScene = new SubScene(mainGroup, 1200, 700, true, SceneAntialiasing.BALANCED);
         subScene.setFill(Color.BLACK);
         subScene.setCamera(camera);
         subScene.widthProperty().bind(mainScene.widthProperty());
@@ -65,13 +68,14 @@ public class Main extends Application {
         primaryStage.setTitle("Hello World");
         primaryStage.setScene(mainScene);
 
-        objectGroup.getChildren().addAll(bodies);
+        mainGroup.getChildren().add(objectGroup);
 
         pool.addAll(bodies);
-        pool.reduceScaleBy(1e4);
+        pool.reduceScaleBy(500);
 //        pool.reduceScaleBy(3000);
         initMouseCommand(mainScene);
         initKeyboardControl(controller);
+        trackObject((Body) objectGroup.getChildren().get(0));
         pool.startSimulation(false);//TODO return
         primaryStage.show(); //TODO return
 
@@ -80,12 +84,13 @@ public class Main extends Application {
     private void createBodies() {
         //sun radius 696_340e3
         Star sun = Star.sun();
-        ImageView sunFlare = Star.addFlare(sun);
-//        objectGroup.getChildren().add(sunFlare);
-
+//        ImageView sunFlare = Star.addFlare(sun);
         Body mercury = Planet.mercury();
         Body thirdBody = new Body(2_439e5, 0, 0, -6.1e10, 6E10, "thirdBody", null);
+
         bodies = List.of(sun, mercury);
+        objectGroup.getChildren().addAll(bodies);
+//        objectGroup.getChildren().add(sunFlare);
 
         pool.orbit(List.of(mercury), sun);
 //        controller.addBodies(bodies);
@@ -101,6 +106,7 @@ public class Main extends Application {
 
         mercury.setMaterial(material1);
         thirdBody.setMaterial(material2);
+
     }
 
     private void initKeyboardControl(MainScene controller) {
@@ -115,18 +121,37 @@ public class Main extends Application {
                 xRotate = new Rotate(0, Rotate.X_AXIS),
                 yRotate = new Rotate(0, Rotate.Y_AXIS)
         );
-
-        Main.objectGroup.getChildren().forEach((node) -> {
-            node.setOnMouseClicked((mouseEvent) -> {
-                System.out.println("Locking on object");
-                if (mouseEvent.getClickCount() == 2) {
-                    lockCameraAt(node);
-                }
-            });
-        });
         xRotate.angleProperty().bind(xAngle);
         yRotate.angleProperty().bind(yAngle);
 
+        final ArrayList<ImageView> flares = new ArrayList<>(); // TODO Only supports one sun
+        Rotate xFlareRotate = new Rotate(0, Rotate.X_AXIS);
+        Rotate yFlareRotate = new Rotate(0, Rotate.Y_AXIS);
+        Rotate zFlareRotate = new Rotate(0, Rotate.Z_AXIS);
+
+        for (Node child : objectGroup.getChildren()) {
+            child.setOnMouseClicked((mouseEvent) -> {
+                if (mouseEvent.getClickCount() == 2) {
+                    trackObject((Body) child);
+                }
+            });
+            if (child instanceof ImageView) {
+                child.getTransforms().addAll(yFlareRotate, xFlareRotate, zFlareRotate);
+                flares.add((ImageView) child);
+            }
+        }
+        if (flares.size() > 0) {
+            xFlareRotate.pivotXProperty().bind(flares.get(0).layoutXProperty().multiply(-1));
+            xFlareRotate.pivotYProperty().bind(flares.get(0).layoutYProperty().multiply(-1));
+
+            yFlareRotate.pivotXProperty().bind(flares.get(0).layoutXProperty().multiply(-1));
+            yFlareRotate.pivotYProperty().bind(flares.get(0).layoutYProperty().multiply(-1));
+
+            zFlareRotate.pivotXProperty().bind(flares.get(0).layoutXProperty().multiply(-1));
+            zFlareRotate.pivotYProperty().bind(flares.get(0).layoutYProperty().multiply(-1));
+        }
+
+        // ================================== Rotation ================================== //
         scene.setOnMousePressed(mouseEvent -> {
             xAnchor = mouseEvent.getSceneX();
             yAnchor = mouseEvent.getSceneY();
@@ -135,38 +160,73 @@ public class Main extends Application {
         });
 
         scene.setOnMouseDragged(mouseEvent -> {
-            xAngle.set(xAngleAnchor - ((yAnchor - mouseEvent.getSceneY()) / 10));
-            yAngle.set(yAngleAnchor + ((xAnchor - mouseEvent.getSceneX()) / 10));
+            double xRotationValue;
+            double yRotationValue;
+
+            xRotationValue = xAngleAnchor - ((yAnchor - mouseEvent.getSceneY()) / 10);
+            yRotationValue = yAngleAnchor + ((xAnchor - mouseEvent.getSceneX()) / 10);
+
+            xAngle.set(xRotationValue);
+            yAngle.set(yRotationValue);
+            xFlareRotate.setAngle(-xRotationValue);
+            yFlareRotate.setAngle(-yRotationValue);
+            zFlareRotate.setAngle((xRotationValue+ yRotationValue)/10);
         });
+        // ================================== Rotation ================================== //
+
+        // ================================== Scrolling ================================== //
 
         primaryStage.addEventHandler(ScrollEvent.SCROLL, (scrollEvent -> {
-            double delta = scrollEvent.getDeltaY();
-            if (camera.getTranslateZ() >= 0){
-                camera.setTranslateZ(0);
-                return;
+            double mouseDelta = scrollEvent.getDeltaY(); // zoom in > 0 / zoom out < 0
+            double zDelta = camera.getTranslateZ() - lockedObject.getTranslateZ();
+
+            if (zDelta >= (lockedObject.getRadius()* -2)) {
+                if  (mouseDelta > 0){
+                    System.out.println(lockedObject.getName() + "/ Locking camera at position " + lockedObject.getRadius() * -2);
+                    camera.setTranslateZ(lockedObject.getTranslateZ()+ (lockedObject.getRadius() * -2));
+                    return;
+                }
             }
-            double scrollingVelocity = (camera.getTranslateZ() * -1) /1e3;
-            System.out.println(scrollingVelocity);
-            camera.setTranslateZ(camera.getTranslateZ() + delta * scrollingVelocity);
+            double scrollingVelocity = (zDelta * -1) / 1e3;
+            try {
+                camera.setTranslateZ(camera.getTranslateZ() + (mouseDelta * scrollingVelocity));
+            }catch (java.lang.RuntimeException e){
+                //dumb code
+            }
         }));
+        // ================================== Scrolling ================================== //
     }
 
-    public static void lockCameraAt(Node body) {
-        xRotate.pivotXProperty().bind(body.translateXProperty());
-        xRotate.pivotYProperty().bind(body.translateYProperty());
-        xRotate.pivotZProperty().bind(body.translateZProperty());
+    public static void trackObject(Body body) {
+        lockedObject = body;
+        System.out.println("Locking camera at object " + lockedObject.getName());
+        xRotate.pivotXProperty().bind(lockedObject.translateXProperty());
+        xRotate.pivotYProperty().bind(lockedObject.translateYProperty());
+        xRotate.pivotZProperty().bind(lockedObject.translateZProperty());
 
-        yRotate.pivotXProperty().bind(body.translateXProperty());
-        yRotate.pivotYProperty().bind(body.translateYProperty());
-        yRotate.pivotZProperty().bind(body.translateZProperty());
+        yRotate.pivotXProperty().bind(lockedObject.translateXProperty());
+        yRotate.pivotYProperty().bind(lockedObject.translateYProperty());
+        yRotate.pivotZProperty().bind(lockedObject.translateZProperty());
 
-        camera.translateXProperty().bind(body.translateXProperty());
-        camera.translateYProperty().bind(body.translateYProperty());
+        camera.translateXProperty().bind(lockedObject.translateXProperty());
+        camera.translateYProperty().bind(lockedObject.translateYProperty());
+        camera.setTranslateZ(lockedObject.getTranslateZ() + (lockedObject.getRadius() * -4));
+    }
+
+    public static void lockCamera() {
+        if (!isCameraLocked) {
+            isCameraLocked = true;
+            camera.translateZProperty().bind(lockedObject.translateZProperty().add(lockedObject.getRadius() * -20));
+        }else{
+            isCameraLocked = false;
+            camera.translateZProperty().unbind();
+        }
     }
 
     public static Collection<Body> getBodies() {
         return bodies;
     }
+    public static boolean isIsCameraLocked(){ return isCameraLocked;}
 
     public static void main(String[] args) {
         launch(args);
