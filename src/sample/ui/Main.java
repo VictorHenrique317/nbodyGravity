@@ -82,30 +82,20 @@ public class Main extends Application {
     }
 
     private void createBodies() {
-        //sun radius 696_340e3
         Star sun = Star.sun();
+//        PointLight sunLight = new PointLight();
+//        sunLight.translateXProperty().bind(sun.translateXProperty().add(sun.radiusProperty()));
+//        sunLight.translateYProperty().bind(sun.translateYProperty().add(sun.radiusProperty()));
+//        sunLight.translateZProperty().bind(sun.translateZProperty().add(sun.radiusProperty()));
+//        sunLight.minWidth(sun.getRadius() *2);
+//        sunLight.minHeight(sun.getRadius() * 2);
 //        ImageView sunFlare = Star.addFlare(sun);
         Body mercury = Planet.mercury();
-        Body thirdBody = new Body(2_439e5, 0, 0, -6.1e10, 6E10, "thirdBody", null);
+        Body venus = Planet.venus();
 
-        bodies = List.of(sun, mercury);
+        bodies = List.of(sun, mercury, venus); // todo venus not orbiting
         objectGroup.getChildren().addAll(bodies);
-//        objectGroup.getChildren().add(sunFlare);
-
-        pool.orbit(List.of(mercury), sun);
-//        controller.addBodies(bodies);
-
-        PhongMaterial material = new PhongMaterial();
-        PhongMaterial material1 = new PhongMaterial();
-        PhongMaterial material2 = new PhongMaterial();
-
-        material.setDiffuseMap(new Image(Objects.requireNonNull(getClass().getClassLoader().
-                getResource("moon_text.jpg")).toExternalForm()));
-        material1.setDiffuseColor(Color.RED);
-        material2.setDiffuseColor(Color.RED);
-
-        mercury.setMaterial(material1);
-        thirdBody.setMaterial(material2);
+        pool.orbit(List.of(mercury, venus), sun);
 
     }
 
@@ -170,7 +160,7 @@ public class Main extends Application {
             yAngle.set(yRotationValue);
             xFlareRotate.setAngle(-xRotationValue);
             yFlareRotate.setAngle(-yRotationValue);
-            zFlareRotate.setAngle((xRotationValue+ yRotationValue)/10);
+            zFlareRotate.setAngle((xRotationValue + yRotationValue) / 10);
         });
         // ================================== Rotation ================================== //
 
@@ -180,19 +170,20 @@ public class Main extends Application {
             double mouseDelta = scrollEvent.getDeltaY(); // zoom in > 0 / zoom out < 0
             double zDelta = camera.getTranslateZ() - lockedObject.getTranslateZ();
 
-            if (zDelta >= (lockedObject.getRadius()* -2)) {
-                if  (mouseDelta > 0){
-                    System.out.println(lockedObject.getName() + "/ Locking camera at position " + lockedObject.getRadius() * -2);
-                    camera.setTranslateZ(lockedObject.getTranslateZ()+ (lockedObject.getRadius() * -2));
+            if ((int) zDelta >= (int) (lockedObject.getRadius() * -2)) {
+                if (mouseDelta > 0) {
+//                    System.out.println(lockedObject.getName() + "/ Locking camera at position " + lockedObject.getRadius() * -2);
+                    camera.setTranslateZ(lockedObject.getTranslateZ() + (lockedObject.getRadius() * -2));
                     return;
                 }
             }
             double scrollingVelocity = (zDelta * -1) / 1e3;
             try {
                 camera.setTranslateZ(camera.getTranslateZ() + (mouseDelta * scrollingVelocity));
-            }catch (java.lang.RuntimeException e){
+            } catch (java.lang.RuntimeException e) {
                 //dumb code
             }
+
         }));
         // ================================== Scrolling ================================== //
     }
@@ -217,7 +208,7 @@ public class Main extends Application {
         if (!isCameraLocked) {
             isCameraLocked = true;
             camera.translateZProperty().bind(lockedObject.translateZProperty().add(lockedObject.getRadius() * -20));
-        }else{
+        } else {
             isCameraLocked = false;
             camera.translateZProperty().unbind();
         }
@@ -226,7 +217,10 @@ public class Main extends Application {
     public static Collection<Body> getBodies() {
         return bodies;
     }
-    public static boolean isIsCameraLocked(){ return isCameraLocked;}
+
+    public static boolean isIsCameraLocked() {
+        return isCameraLocked;
+    }
 
     public static void main(String[] args) {
         launch(args);
