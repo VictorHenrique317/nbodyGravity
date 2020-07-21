@@ -22,7 +22,7 @@ public final class GravityPool {
     private double delay;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private boolean showPath;
-    private double scaleReduction;
+    private double scaleReduction = 1;
 
     public GravityPool(Types simulationType) {
         this(simulationType, null);
@@ -96,7 +96,7 @@ public final class GravityPool {
     }
 
     public void changeSpeed(double speed) {
-        speed *= scaleReduction / 50;
+        speed *= scaleReduction;
         stopSimulation();
         if (speed > 0) this.speed = speed;
         System.out.println("Changing speed to " + this.speed);
@@ -104,12 +104,11 @@ public final class GravityPool {
     }
 
     public void reduceScaleBy(double scaleReduction) {
+        if (bodies.isEmpty()){
+            throw new IllegalStateException("No bodies");
+        }
         this.scaleReduction = scaleReduction;
         double radiusBaseValue = 2e3;
-//        if (scaleReduction == 1){
-//            this.G = 6.66e-11;
-//            return;
-//        }
         this.G = 6.66e-11;
 
         for (Body body : bodies) {

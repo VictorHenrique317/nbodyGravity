@@ -38,44 +38,47 @@ public class Planet extends Body {
         return venus;
     }
     public static Body earth() {
-//        Image icon = new Image(Objects.requireNonNull(
-//                Planet.class.getClassLoader().getResource("venus 1.png")).toExternalForm());
-//        Image text = new Image(Objects.requireNonNull(
-//                Planet.class.getClassLoader().getResource("venus_texture.jpg")).toExternalForm());
-//        PhongMaterial material = new PhongMaterial();
-//        material.setDiffuseMap(text);
+        Image icon = new Image(Objects.requireNonNull(
+                Planet.class.getClassLoader().getResource("earth.png")).toExternalForm());
+        Image text = new Image(Objects.requireNonNull(
+                Planet.class.getClassLoader().getResource("earth_texture.jpg")).toExternalForm());
+        Image spec = new Image(Objects.requireNonNull(
+                Planet.class.getClassLoader().getResource("earth_pec.tif")).toExternalForm());
+        PhongMaterial material = new PhongMaterial();
+        material.setDiffuseMap(text);
+//        material.setSpecularMap(spec);
 
-        Planet earth = new Planet(6_378e3,0 ,0 ,1.47e11,  5.9e24 , "Earth", null);
+        Planet earth = new Planet(6_378e3,0 ,0 ,1.47e11,  5.9e24 , "Earth", icon);
         earth.setxVelocity(3e4);
-//        earth.setMaterial(material);
+        earth.setMaterial(material);
         return earth;
     }
 
     public static Body mars() {
-//        Image icon = new Image(Objects.requireNonNull(
-//                Planet.class.getClassLoader().getResource("venus 1.png")).toExternalForm());
-//        Image text = new Image(Objects.requireNonNull(
-//                Planet.class.getClassLoader().getResource("venus_texture.jpg")).toExternalForm());
-//        PhongMaterial material = new PhongMaterial();
-//        material.setDiffuseMap(text);
+        Image icon = new Image(Objects.requireNonNull(
+                Planet.class.getClassLoader().getResource("mars.png")).toExternalForm());
+        Image text = new Image(Objects.requireNonNull(
+                Planet.class.getClassLoader().getResource("mars_texture.jpg")).toExternalForm());
+        PhongMaterial material = new PhongMaterial();
+        material.setDiffuseMap(text);
 
-        Planet mars = new Planet(3_396e3,0 ,0 ,2.06e11,  0.64e24 , "Mars", null);
+        Planet mars = new Planet(3_396e3,0 ,0 ,2.06e11,  0.64e24 , "Mars", icon);
         mars.setxVelocity(2.6e4);
-//        earth.setMaterial(material);
+        mars.setMaterial(material);
         return mars;
     }
 
     public static Body jupiter() {
-//        Image icon = new Image(Objects.requireNonNull(
-//                Planet.class.getClassLoader().getResource("venus 1.png")).toExternalForm());
-//        Image text = new Image(Objects.requireNonNull(
-//                Planet.class.getClassLoader().getResource("venus_texture.jpg")).toExternalForm());
-//        PhongMaterial material = new PhongMaterial();
-//        material.setDiffuseMap(text);
+        Image icon = new Image(Objects.requireNonNull(
+                Planet.class.getClassLoader().getResource("jupiter.png")).toExternalForm());
+        Image text = new Image(Objects.requireNonNull(
+                Planet.class.getClassLoader().getResource("jupiter_texture.jpg")).toExternalForm());
+        PhongMaterial material = new PhongMaterial();
+        material.setDiffuseMap(text);
 
-        Planet jupiter   = new Planet(71_398e3,0 ,0 ,7.4e11,  1_898e24 , "Jupiter", null);
+        Planet jupiter   = new Planet(71_398e3,0 ,0 ,7.4e11,  1_898e24 , "Jupiter", icon);
         jupiter.setxVelocity(1.3e4);
-//        earth.setMaterial(material);
+        jupiter.setMaterial(material);
         return jupiter;
     }
 

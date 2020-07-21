@@ -87,7 +87,6 @@ public class MainScene {
             DrawerIcon icon = new DrawerIcon(body);
             drawerContent.getChildren().add(icon);
         }
-
     }
 
 
@@ -132,11 +131,11 @@ public class MainScene {
     private void onHyperwarpClick(){ // maximum speed is 400x
         if (hyperwarpMultiplier == 1){ // enable
             System.out.println("Activating hyperwarp");
-            hyperwarpMultiplier = 5;
+            hyperwarpMultiplier = 10;
             pool.changeSpeed(this.speed * hyperwarpMultiplier);
             return;
         }
-        if (hyperwarpMultiplier == 5){ // disable
+        if (hyperwarpMultiplier == 10){ // disable
             System.out.println("Deactivating hyperwarp");
             hyperwarpMultiplier = 1;
             pool.changeSpeed(this.speed * hyperwarpMultiplier);
@@ -220,6 +219,7 @@ public class MainScene {
 
     public void setGravityPool(GravityPool pool) {
         this.pool = pool;
+        onFirstArrowClick();
     }
 
     public BorderPane getBorderPane() {

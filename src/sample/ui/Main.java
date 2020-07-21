@@ -4,13 +4,11 @@ import javafx.application.Application;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import sample.physics.models.Body;
@@ -24,9 +22,10 @@ import java.util.List;
 public class Main extends Application {
     // ================================= Visuals ================================= //
     private static Stage primaryStage;
-    private MainScene controller;
-    public static final Camera camera = new PerspectiveCamera(true);
+    private static final Camera camera = new PerspectiveCamera(true);
     private static boolean isCameraLocked = false;
+    private  static boolean isRadiusIncreased = false;
+
     // ================================= Mechanics ================================= //
     public static final Group objectGroup = new Group();
     private static final Group mainGroup = new Group();
@@ -45,7 +44,9 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
         createBodies();
          pool = new GravityPool(GravityPool.Types.classic, bodies.get(0));
-//        Camera camera = new PerspectiveCamera(true);
+        pool.addAll(bodies);
+        pool.reduceScaleBy(1e2);
+
         camera.setNearClip(0.01);
         camera.setFarClip(10_000_000);
         camera.setTranslateZ(-2_202_020);
@@ -53,14 +54,12 @@ public class Main extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getClassLoader().getResource("MainScene.fxml"));
         Parent root = fxmlLoader.load();
-        controller = fxmlLoader.getController();
+        MainScene controller = fxmlLoader.getController();
         Scene mainScene = new Scene(root, 1200, 800, true);
         SubScene subScene = new SubScene(mainGroup, 1200, 700, true, SceneAntialiasing.BALANCED);
         subScene.setFill(Color.BLACK);
         subScene.setCamera(camera);
         subScene.widthProperty().bind(mainScene.widthProperty());
-//        subScene.widthProperty().bin
-
 
         controller.setCenter(subScene);
         controller.setGravityPool(pool);
@@ -71,19 +70,11 @@ public class Main extends Application {
 
         mainGroup.getChildren().add(objectGroup);
 
-        pool.addAll(bodies);
-//        pool.reduceScaleBy(500);
-        pool.reduceScaleBy(3000);
-//        double scaleReduction = 9000d;
-//        pool.reduceScaleBy(scaleReduction);
-//        for (Body body : bodies){
-//            body.setTranslateX(body.getTranslateX() * scaleReduction);
-//        }
         initMouseCommand(mainScene);
         initKeyboardControl(controller);
         trackObject((Body) objectGroup.getChildren().get(0));
-        pool.startSimulation(false);//TODO return
-        primaryStage.show(); //TODO return
+        pool.startSimulation(false);
+        primaryStage.show();
 
     }
 
@@ -176,14 +167,12 @@ public class Main extends Application {
         // ================================== Rotation ================================== //
 
         // ================================== Scrolling ================================== //
-
         primaryStage.addEventHandler(ScrollEvent.SCROLL, (scrollEvent -> {
             double mouseDelta = scrollEvent.getDeltaY(); // zoom in > 0 / zoom out < 0
             double zDelta = camera.getTranslateZ() - lockedObject.getTranslateZ();
 
             if ((int) zDelta >= (int) (lockedObject.getRadius() * -2)) {
                 if (mouseDelta > 0) {
-//                    System.out.println(lockedObject.getName() + "/ Locking camera at position " + lockedObject.getRadius() * -2);
                     camera.setTranslateZ(lockedObject.getTranslateZ() + (lockedObject.getRadius() * -2));
                     return;
                 }
@@ -191,6 +180,7 @@ public class Main extends Application {
             double scrollingVelocity = (zDelta * -1) / 1e3;
             try {
                 camera.setTranslateZ(camera.getTranslateZ() + (mouseDelta * scrollingVelocity));
+                handleRadius();
             } catch (java.lang.RuntimeException e) {
                 //dumb code
             }
@@ -199,9 +189,31 @@ public class Main extends Application {
         // ================================== Scrolling ================================== //
     }
 
+    private static void handleRadius() {
+        double ratio = 100;
+        if ((camera.getTranslateZ() <= -4e8 && !isRadiusIncreased) || camera.getTranslateZ() >= -4e8 && isRadiusIncreased){
+            if(!isRadiusIncreased) {
+                System.out.println("increasing");
+                for (Body body : bodies) {
+                    if (bodies.indexOf(body) == 0) continue;
+                    body.setRadius(body.getRadius() * ratio);
+                }
+                isRadiusIncreased = true;
+            }else {
+                System.out.println("decreasing");
+                for (Body body : bodies) {
+                    if (bodies.indexOf(body) == 0) continue;
+                    body.setRadius(body.getRadius() / ratio);
+                }
+                isRadiusIncreased = false;
+            }
+        }
+    }
+
     public static void trackObject(Body body) {
         lockedObject = body;
         System.out.println("Locking camera at object " + lockedObject.getName());
+
         xRotate.pivotXProperty().bind(lockedObject.translateXProperty());
         xRotate.pivotYProperty().bind(lockedObject.translateYProperty());
         xRotate.pivotZProperty().bind(lockedObject.translateZProperty());
@@ -212,10 +224,16 @@ public class Main extends Application {
 
         camera.translateXProperty().bind(lockedObject.translateXProperty());
         camera.translateYProperty().bind(lockedObject.translateYProperty());
-        camera.setTranslateZ(lockedObject.getTranslateZ() + (lockedObject.getRadius() * -4));
+        if (camera.translateZProperty().isBound()) { // camera is locked
+            camera.translateZProperty().unbind();
+            lockCamera();  lockCamera();
+        } else {
+            camera.setTranslateZ(lockedObject.getTranslateZ() + (lockedObject.getRadius() * -4));
+        }
+        handleRadius();
     }
 
-    public static void lockCamera() {
+    static void lockCamera() {
         if (!isCameraLocked) {
             isCameraLocked = true;
             camera.translateZProperty().bind(lockedObject.translateZProperty().add(lockedObject.getRadius() * -20));
@@ -225,11 +243,11 @@ public class Main extends Application {
         }
     }
 
-    public static Collection<Body> getBodies() {
+    static Collection<Body> getBodies() {
         return bodies;
     }
 
-    public static boolean isIsCameraLocked() {
+    static boolean isIsCameraLocked() {
         return isCameraLocked;
     }
 
