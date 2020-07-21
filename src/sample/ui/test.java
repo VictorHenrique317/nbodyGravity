@@ -35,7 +35,7 @@ public class test extends Application {
     private static SimpleDoubleProperty xAngle = new SimpleDoubleProperty(0);
     private static SimpleDoubleProperty yAngle = new SimpleDoubleProperty(0);
 
-    private static final GravityPool pool = new GravityPool();
+//    private static final GravityPool pool = new GravityPool();
     private static Stage primaryStage;
 
     @Override
@@ -56,7 +56,7 @@ public class test extends Application {
 
 
         controller.setCenter(subScene);
-        controller.setGravityPool(pool);
+//        controller.setGravityPool(pool);
 
         primaryStage = stage;
         primaryStage.setTitle("Hello World");
@@ -64,9 +64,9 @@ public class test extends Application {
 
         objectGroup.getChildren().addAll(bodies);
 
-        pool.addAll(bodies);
-        pool.reduceScaleBy(1e4);
-        pool.startSimulation(false);//TODO return
+//        pool.addAll(bodies);
+//        pool.reduceScaleBy(1e4);
+//        pool.startSimulation(false);//TODO return
         primaryStage.show(); //TODO return
 
     }
@@ -77,7 +77,7 @@ public class test extends Application {
 
     @Override
     public void stop() throws Exception {
-        pool.stopSimulation();
+//        pool.stopSimulation();
         super.stop();
     }
 }

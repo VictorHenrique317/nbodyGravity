@@ -30,11 +30,11 @@ public class Main extends Application {
     // ================================= Mechanics ================================= //
     public static final Group objectGroup = new Group();
     private static final Group mainGroup = new Group();
-    private static final GravityPool pool = new GravityPool();
+    private static GravityPool pool;
     private static Body lockedObject;
     // ================================= Rotation ================================= //
     private static double xAnchor, yAnchor, xAngleAnchor, yAngleAnchor;
-    private static Collection<Body> bodies;
+    private static ArrayList<Body> bodies;
     private static SimpleDoubleProperty xAngle = new SimpleDoubleProperty(0);
     private static SimpleDoubleProperty yAngle = new SimpleDoubleProperty(0);
     private static Rotate xRotate;
@@ -44,6 +44,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         createBodies();
+         pool = new GravityPool(GravityPool.Types.classic, bodies.get(0));
 //        Camera camera = new PerspectiveCamera(true);
         camera.setNearClip(0.01);
         camera.setFarClip(10_000_000);
@@ -71,8 +72,13 @@ public class Main extends Application {
         mainGroup.getChildren().add(objectGroup);
 
         pool.addAll(bodies);
-        pool.reduceScaleBy(500);
-//        pool.reduceScaleBy(3000);
+//        pool.reduceScaleBy(500);
+        pool.reduceScaleBy(3000);
+//        double scaleReduction = 9000d;
+//        pool.reduceScaleBy(scaleReduction);
+//        for (Body body : bodies){
+//            body.setTranslateX(body.getTranslateX() * scaleReduction);
+//        }
         initMouseCommand(mainScene);
         initKeyboardControl(controller);
         trackObject((Body) objectGroup.getChildren().get(0));
@@ -83,19 +89,24 @@ public class Main extends Application {
 
     private void createBodies() {
         Star sun = Star.sun();
-//        PointLight sunLight = new PointLight();
-//        sunLight.translateXProperty().bind(sun.translateXProperty().add(sun.radiusProperty()));
-//        sunLight.translateYProperty().bind(sun.translateYProperty().add(sun.radiusProperty()));
-//        sunLight.translateZProperty().bind(sun.translateZProperty().add(sun.radiusProperty()));
-//        sunLight.minWidth(sun.getRadius() *2);
-//        sunLight.minHeight(sun.getRadius() * 2);
-//        ImageView sunFlare = Star.addFlare(sun);
         Body mercury = Planet.mercury();
         Body venus = Planet.venus();
+        Body earth = Planet.earth();
+        Body mars = Planet.mars();
+        Body jupiter = Planet.jupiter();
 
-        bodies = List.of(sun, mercury, venus); // todo venus not orbiting
+        // S - V = 5e22
+        // M - V = 3e16
+
+        bodies = new ArrayList<Body>(List.of(sun, mercury, venus, earth, mars, jupiter)); // todo venus not orbiting
+//        bodies = List.of(sun, mercury); // todo venus not orbiting
+
         objectGroup.getChildren().addAll(bodies);
-        pool.orbit(List.of(mercury, venus), sun);
+//        pool.orbit(List.of(mercury, venus), sun);
+//        venus.setxVelocity(venus.getXVelocity() *-1);
+//        venus.setxVelocity(20000);
+//        mercury.setxVelocity(20000);
+
 
     }
 

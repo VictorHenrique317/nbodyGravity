@@ -1,5 +1,6 @@
 package sample.physics.models;
 
+import javafx.beans.property.DoubleProperty;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -18,6 +19,10 @@ public class Body extends Sphere {
     private double xVelocity = 0;
     private double yVelocity = 0;
     private double zVelocity = 0;
+
+//    private DoubleProperty xTranslate = this.translateXProperty().multiply(9000);
+//    private DoubleProperty yTranslate = this.translateYProperty().multiply(9000);
+//    private DoubleProperty zTranslate = this.translateXProperty().multiply(9000);
 
     public Body(double radius, double mass, String name, Image icon ){
         this(radius, 0, 0, 0, mass, name, icon);
@@ -62,17 +67,21 @@ public class Body extends Sphere {
         }
     }
 
-    private synchronized void beAttractedBy(Body body, double precision, double simulationG) {
+    public synchronized void beAttractedBy(Body body, double precision, double simulationG) {
 //        System.out.println("Being attracted, xVelocity is " + xVelocity );
         counter++;
         double xOffset = body.getTranslateX() - this.getTranslateX();
         double yOffset = body.getTranslateY() - this.getTranslateY();
         double zOffset = body.getTranslateZ() - this.getTranslateZ();
+
+//        xOffset *= 9000;
+//        yOffset *= 9000;
+//        zOffset *= 9000;
         double distance = distanceTo(body);
 
         double force = simulationG * (this.mass * body.mass / Math.pow(distance, 2)); // newton's gravitation
         if (distance <= this.getRadius()){
-            System.out.println("Bumped, distance is " + distance + " radius is " + this.getRadius());
+            System.out.println(this.name + " bumped, distance is " + distance + " radius is " + this.getRadius());
             return;
         }
 
@@ -80,6 +89,11 @@ public class Body extends Sphere {
         double cosine = xOffset/distance;
 
         double zSine = zOffset / distance;
+
+
+//        if (this.name.equals("Mercury") && body.getName().equals("Venus")){
+//            System.out.println("force mercury- venus is " + force);
+//        }
 
         double forceX = force * cosine;
         double forceY = force * sine;
@@ -93,6 +107,16 @@ public class Body extends Sphere {
         double xDistance = this.xVelocity * precision;
         double yDistance = this.yVelocity * precision;
         double zDistance = this.zVelocity * precision;
+
+
+        if (this.name.equals("Mercury") && body.getName().equals("Venus")){
+            System.out.println("distance " + distance);
+//            System.out.println("Xforce is " +  forceX);
+//            System.out.println("    Yforce is " +  forceY);
+//            System.out.println("        Zforce is " +  forceZ);
+//            System.out.println("            force is " +  force);
+        }
+
 
         this.setTranslateX(this.getTranslateX() + xDistance);
         this.setTranslateY(this.getTranslateY() + yDistance);
@@ -108,19 +132,24 @@ public class Body extends Sphere {
         double xOffset = body.getTranslateX() - this.getTranslateX();
         double yOffset = body.getTranslateY() - this.getTranslateY();
         double zOffset = body.getTranslateZ() - this.getTranslateZ();
+//        xOffset *= 9000;
+//        yOffset *= 9000;
+//        zOffset *= 9000;
 
         double distance = Math.sqrt((Math.pow(xOffset, 2) + Math.pow(yOffset, 2))); // a^2 = b^2 + c^2
         distance = Math.sqrt(Math.pow(distance, 2) + Math.pow(zOffset, 2));
         return distance;
     }
 
-    public void showPath() {
-        Sphere sphere = new Sphere(0.5);
-        sphere.setTranslateX(this.getTranslateX());
-        sphere.setTranslateY(this.getTranslateY());
-        sphere.setTranslateZ(this.getTranslateZ());
-        sphere.setMaterial(pathMaterial);
-        Main.objectGroup.getChildren().add(sphere);
+    public void showPath(boolean showPath) {
+        if (showPath) {
+            Sphere sphere = new Sphere(0.5);
+            sphere.setTranslateX(this.getTranslateX());
+            sphere.setTranslateY(this.getTranslateY());
+            sphere.setTranslateZ(this.getTranslateZ());
+            sphere.setMaterial(pathMaterial);
+            Main.objectGroup.getChildren().add(sphere);
+        }
     }
 
     public double getXVelocity() {
