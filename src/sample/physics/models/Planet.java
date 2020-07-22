@@ -1,8 +1,14 @@
 package sample.physics.models;
 
+import javafx.scene.Node;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.PhongMaterial;
+import javafx.scene.transform.Rotate;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 public class Planet extends Body {
@@ -46,7 +52,6 @@ public class Planet extends Body {
                 Planet.class.getClassLoader().getResource("earth_pec.tif")).toExternalForm());
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseMap(text);
-//        material.setSpecularMap(spec);
 
         Planet earth = new Planet(6_378e3,0 ,0 ,1.47e11,  5.9e24 , "Earth", icon);
         earth.setxVelocity(3e4);
@@ -80,6 +85,34 @@ public class Planet extends Body {
         jupiter.setxVelocity(1.3e4);
         jupiter.setMaterial(material);
         return jupiter;
+    }
+
+    public static ArrayList<Node> saturn() {
+//        Image icon = new Image(Objects.requireNonNull(
+//                Planet.class.getClassLoader().getResource("saturn.png")).toExternalForm());
+        Image text = new Image(Objects.requireNonNull(
+                Planet.class.getClassLoader().getResource("saturn_texture.jpg")).toExternalForm());
+        Image ring_text = new Image(Objects.requireNonNull(
+                Planet.class.getClassLoader().getResource("texture.jpg")).toExternalForm());
+        PhongMaterial material = new PhongMaterial();
+        material.setDiffuseMap(text);
+
+        Planet saturn = new Planet(60_268e3,0 ,0 ,13.52e11,  568e24 , "Saturn", null);
+        ImageView ring = new ImageView(ring_text);
+        double value = 1e7;
+        ring.setFitWidth(value);
+        ring.setFitHeight(value);
+        ring.setLayoutX(value/-2);
+        ring.setLayoutY(value/-2);
+        ring.translateXProperty().bind(saturn.translateXProperty());
+        ring.translateYProperty().bind(saturn.translateYProperty());
+        ring.translateZProperty().bind(saturn.translateZProperty());
+        ring.setRotationAxis(Rotate.X_AXIS);
+//        ring.rotateProperty().bind(saturn.rotateProperty());
+
+        saturn.setxVelocity(0.9e4);
+        saturn.setMaterial(material);
+        return new ArrayList<>(List.of(saturn, ring));
     }
 
 }

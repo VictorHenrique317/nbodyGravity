@@ -1,6 +1,5 @@
 package sample.physics.models;
 
-import javafx.beans.property.DoubleProperty;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -14,31 +13,33 @@ public class Body extends Sphere {
     private final String name;
     private final Image icon;
     private int counter = 0;
+    private double baseRadius;
     private final double mass;
 
     private double xVelocity = 0;
     private double yVelocity = 0;
     private double zVelocity = 0;
 
-    public Body(double radius, double mass, String name, Image icon ){
-        this(radius, 0, 0, 0, mass, name, icon);
+    public Body(double baseRadius, double mass, String name, Image icon ){
+        this(baseRadius, 0, 0, 0, mass, name, icon);
     }
 
-    public Body(double radius, double z, double mass, String name, Image icon){
-        this(radius, 0, 0, z, mass, name, icon);
+    public Body(double baseRadius, double z, double mass, String name, Image icon){
+        this(baseRadius, 0, 0, z, mass, name, icon);
     }
 
-    public Body(double radius, double z, double y, double mass, String name, Image icon){
-        this(radius, 0, y, z, mass, name, icon);
+    public Body(double baseRadius, double z, double y, double mass, String name, Image icon){
+        this(baseRadius, 0, y, z, mass, name, icon);
     }
 
-    public Body(double radius, double x, double y, double z, double mass, String name, Image icon) {
-        super(radius);
+    public Body(double baseRadius, double x, double y, double z, double mass, String name, Image icon) {
+        super(baseRadius);
         this.setTranslateX(x);
         this.setTranslateY(y);
         this.setTranslateZ(z);
-        this.setRadius(radius);
+        this.setRadius(baseRadius);
 
+        this.baseRadius = baseRadius;
         this.mass = mass;
         this.name = name;
         this.icon = icon;
@@ -131,5 +132,14 @@ public class Body extends Sphere {
 
     public Image getIcon() {
         return icon;
+    }
+
+    public void setBaseRadius(double baseRadius) {
+        this.baseRadius = baseRadius;
+        this.setRadius(baseRadius);
+    }
+
+    public double getBaseRadius() {
+        return baseRadius;
     }
 }

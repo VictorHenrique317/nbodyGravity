@@ -1,6 +1,8 @@
 #lockCameraBox:hover{
     -fx-background-color:#6D7179;
     -fx-cursor:hand;
+    -fx-scale-x:1.1;
+    -fx-scale-y:1.1;
 }
 
 .jfx-hamburger StackPane {-fx-background-color: white; }
@@ -9,12 +11,30 @@
     -fx-cursor:hand;
 }
 
-#firstArrow:hover{ -fx-cursor:hand; }
-#secondArrow:hover{ -fx-cursor:hand; }
-#thirdArrow:hover{ -fx-cursor:hand; }
-#fourthArrow:hover{ -fx-cursor:hand; }
+#firstArrow:hover{
+    -fx-cursor:hand;
+    -fx-scale-x:1.2;
+    -fx-scale-y:1.2;
+}
+#secondArrow:hover{
+    -fx-cursor:hand;
+    -fx-scale-x:1.2;
+    -fx-scale-y:1.2;
+}
+#thirdArrow:hover{
+    -fx-cursor:hand;
+    -fx-scale-x:1.2;
+    -fx-scale-y:1.2;
+}
+#fourthArrow:hover{
+    -fx-cursor:hand;
+    -fx-scale-x:1.2;
+    -fx-scale-y:1.2;
+}
 
 #drawerIcon:hover{
     -fx-background-color:#7A7F8B;
     -fx-cursor:hand;
+    -fx-scale-x:1.2;
+    -fx-scale-y:1.2;
 }

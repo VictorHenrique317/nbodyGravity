@@ -60,8 +60,8 @@ public final class GravityPool {
         return this.bodies;
     }
 
-    public void startSimulation(boolean showPath) {
-        configureGravity(showPath, centralBody);
+    public void startSimulation() {
+        configureGravity(centralBody);
         executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             for (Timeline timeline : timeLines) {
@@ -70,8 +70,8 @@ public final class GravityPool {
         });
     }
 
-    private void configureGravity(boolean showPath, Body centralBody) {
-        this.showPath = showPath;
+    private void configureGravity(Body centralBody) {
+        this.showPath = false;
         this.delay = 50;
         Timeline til;
         for (Body i : bodies) {
@@ -96,11 +96,11 @@ public final class GravityPool {
     }
 
     public void changeSpeed(double speed) {
-        speed *= scaleReduction;
+        speed *= 1e3/scaleReduction;
         stopSimulation();
         if (speed > 0) this.speed = speed;
         System.out.println("Changing speed to " + this.speed);
-        startSimulation(showPath);
+        startSimulation();
     }
 
     public void reduceScaleBy(double scaleReduction) {
@@ -122,8 +122,8 @@ public final class GravityPool {
             for (double i = body.getRadius(); i >= 10; i /= 10) {
                 exponent++;
             }
-
-            body.setRadius(Math.pow(radiusBaseValue, exponent / 4));
+            double newRadius = Math.pow(radiusBaseValue, exponent / 4);
+            body.setBaseRadius(newRadius);
             System.out.println("Scaled velocity is " + body.getXVelocity());
             System.out.println("    Scaled radius is " + body.getRadius());
 
@@ -142,6 +142,11 @@ public final class GravityPool {
             body.setxVelocity(orbitalVelocity);
             System.out.println("Orbital velocity is " + orbitalVelocity);
         }
+    }
+
+
+    public void setRadius(double radius){
+
     }
 
     public void setG(double value) { //todo remove

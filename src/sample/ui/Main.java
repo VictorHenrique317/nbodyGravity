@@ -1,6 +1,10 @@
 package sample.ui;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.*;
@@ -11,6 +15,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import sample.physics.models.Body;
 import sample.physics.GravityPool;
 import sample.physics.models.Planet;
@@ -18,13 +23,15 @@ import sample.physics.models.Star;
 
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.*;
 
 public class Main extends Application {
     // ================================= Visuals ================================= //
     private static Stage primaryStage;
     private static final Camera camera = new PerspectiveCamera(true);
     private static boolean isCameraLocked = false;
-    private  static boolean isRadiusIncreased = false;
+    private static boolean isRadiusIncreased = false;
+    private static ExecutorService radiusHandler = Executors.newSingleThreadExecutor();
 
     // ================================= Mechanics ================================= //
     public static final Group objectGroup = new Group();
@@ -38,14 +45,17 @@ public class Main extends Application {
     private static SimpleDoubleProperty yAngle = new SimpleDoubleProperty(0);
     private static Rotate xRotate;
     private static Rotate yRotate;
+    private Collection<Node> nodesToRotate;
 
 
     @Override
     public void start(Stage stage) throws Exception {
         createBodies();
-         pool = new GravityPool(GravityPool.Types.classic, bodies.get(0));
+        pool = new GravityPool(GravityPool.Types.classic, bodies.get(0));
+//        pool = new GravityPool(GravityPool.Types.Nbody);
         pool.addAll(bodies);
         pool.reduceScaleBy(1e2);
+//        pool.reduceScaleBy(1);
 
         camera.setNearClip(0.01);
         camera.setFarClip(10_000_000);
@@ -60,10 +70,8 @@ public class Main extends Application {
         subScene.setFill(Color.BLACK);
         subScene.setCamera(camera);
         subScene.widthProperty().bind(mainScene.widthProperty());
-
         controller.setCenter(subScene);
         controller.setGravityPool(pool);
-
         primaryStage = stage;
         primaryStage.setTitle("Hello World");
         primaryStage.setScene(mainScene);
@@ -73,7 +81,7 @@ public class Main extends Application {
         initMouseCommand(mainScene);
         initKeyboardControl(controller);
         trackObject((Body) objectGroup.getChildren().get(0));
-        pool.startSimulation(false);
+        pool.startSimulation();
         primaryStage.show();
 
     }
@@ -85,20 +93,13 @@ public class Main extends Application {
         Body earth = Planet.earth();
         Body mars = Planet.mars();
         Body jupiter = Planet.jupiter();
-
-        // S - V = 5e22
-        // M - V = 3e16
-
-        bodies = new ArrayList<Body>(List.of(sun, mercury, venus, earth, mars, jupiter)); // todo venus not orbiting
-//        bodies = List.of(sun, mercury); // todo venus not orbiting
+        ArrayList<Node> saturnAndRing = Planet.saturn();
+        bodies = new ArrayList<>(List.of(sun, mercury, venus, earth, mars, jupiter, (Body) saturnAndRing.get(0)));
 
         objectGroup.getChildren().addAll(bodies);
-//        pool.orbit(List.of(mercury, venus), sun);
-//        venus.setxVelocity(venus.getXVelocity() *-1);
-//        venus.setxVelocity(20000);
-//        mercury.setxVelocity(20000);
-
-
+        mainGroup.getChildren().add(saturnAndRing.get(1));
+        nodesToRotate = new ArrayList<>();
+        nodesToRotate.add(saturnAndRing.get(1));
     }
 
     private void initKeyboardControl(MainScene controller) {
@@ -107,19 +108,49 @@ public class Main extends Application {
             if (event.getCode() == KeyCode.COMMA) controller.decelerateSimulation();
         });
     }
+    //A always
+    //B never
+    //C rarely
+    //D sometimes
+    //E often
+    //F usually
 
     private void initMouseCommand(Scene scene) {
         Main.objectGroup.getTransforms().addAll(
                 xRotate = new Rotate(0, Rotate.X_AXIS),
                 yRotate = new Rotate(0, Rotate.Y_AXIS)
         );
+
+        nodesToRotate.forEach((node)->{
+            Rotate nodeXRotate = new Rotate(0, Rotate.X_AXIS);
+            DoubleProperty fitWidth = ((ImageView)node).fitWidthProperty();
+            nodeXRotate.pivotXProperty().bind(fitWidth.divide(4).add(nodeXRotate.getPivotX()));
+            nodeXRotate.pivotYProperty().bind(fitWidth.divide(4).add(nodeXRotate.getPivotY()));
+            nodeXRotate.pivotZProperty().bind(fitWidth.divide(4).add(nodeXRotate.getPivotZ()));
+//            nodeXRotate.angleProperty().bind(xAngle);
+
+            Rotate nodeYRotate = new Rotate(0, Rotate.Y_AXIS);
+            nodeYRotate.pivotXProperty().bind(fitWidth.divide(2).add(nodeYRotate.getPivotX()));
+            nodeYRotate.pivotYProperty().bind(fitWidth.divide(2).add(nodeYRotate.getPivotY()));
+            nodeYRotate.pivotZProperty().bind(fitWidth.divide(2).add(nodeYRotate.getPivotZ()));
+            nodeYRotate.angleProperty().bind(yAngle);
+
+            node.getTransforms().addAll(nodeXRotate, nodeYRotate);
+//            nodeYRotate.setAngle(45);
+//            node.setRotationAxis(Rotate.X_AXIS);
+//            node.rotateProperty().bind(xAngle);
+//            System.out.println();
+            System.out.println("=============" + nodeXRotate.pivotXProperty().doubleValue());
+            System.out.println("=============" + node.translateXProperty().doubleValue());
+        });
         xRotate.angleProperty().bind(xAngle);
         yRotate.angleProperty().bind(yAngle);
 
-        final ArrayList<ImageView> flares = new ArrayList<>(); // TODO Only supports one sun
-        Rotate xFlareRotate = new Rotate(0, Rotate.X_AXIS);
-        Rotate yFlareRotate = new Rotate(0, Rotate.Y_AXIS);
-        Rotate zFlareRotate = new Rotate(0, Rotate.Z_AXIS);
+
+//        final ArrayList<ImageView> flares = new ArrayList<>();
+//        Rotate xFlareRotate = new Rotate(0, Rotate.X_AXIS);
+//        Rotate yFlareRotate = new Rotate(0, Rotate.Y_AXIS);
+//        Rotate zFlareRotate = new Rotate(0, Rotate.Z_AXIS);
 
         for (Node child : objectGroup.getChildren()) {
             child.setOnMouseClicked((mouseEvent) -> {
@@ -127,21 +158,21 @@ public class Main extends Application {
                     trackObject((Body) child);
                 }
             });
-            if (child instanceof ImageView) {
-                child.getTransforms().addAll(yFlareRotate, xFlareRotate, zFlareRotate);
-                flares.add((ImageView) child);
-            }
+//            if (child instanceof ImageView) {
+//                child.getTransforms().addAll(yFlareRotate, xFlareRotate, zFlareRotate);
+//                flares.add((ImageView) child);
+//            }
         }
-        if (flares.size() > 0) {
-            xFlareRotate.pivotXProperty().bind(flares.get(0).layoutXProperty().multiply(-1));
-            xFlareRotate.pivotYProperty().bind(flares.get(0).layoutYProperty().multiply(-1));
-
-            yFlareRotate.pivotXProperty().bind(flares.get(0).layoutXProperty().multiply(-1));
-            yFlareRotate.pivotYProperty().bind(flares.get(0).layoutYProperty().multiply(-1));
-
-            zFlareRotate.pivotXProperty().bind(flares.get(0).layoutXProperty().multiply(-1));
-            zFlareRotate.pivotYProperty().bind(flares.get(0).layoutYProperty().multiply(-1));
-        }
+//        if (flares.size() > 0) {
+//            xFlareRotate.pivotXProperty().bind(flares.get(0).layoutXProperty().multiply(-1));
+//            xFlareRotate.pivotYProperty().bind(flares.get(0).layoutYProperty().multiply(-1));
+//
+//            yFlareRotate.pivotXProperty().bind(flares.get(0).layoutXProperty().multiply(-1));
+//            yFlareRotate.pivotYProperty().bind(flares.get(0).layoutYProperty().multiply(-1));
+//
+//            zFlareRotate.pivotXProperty().bind(flares.get(0).layoutXProperty().multiply(-1));
+//            zFlareRotate.pivotYProperty().bind(flares.get(0).layoutYProperty().multiply(-1));
+//        }
 
         // ================================== Rotation ================================== //
         scene.setOnMousePressed(mouseEvent -> {
@@ -160,9 +191,9 @@ public class Main extends Application {
 
             xAngle.set(xRotationValue);
             yAngle.set(yRotationValue);
-            xFlareRotate.setAngle(-xRotationValue);
-            yFlareRotate.setAngle(-yRotationValue);
-            zFlareRotate.setAngle((xRotationValue + yRotationValue) / 10);
+//            xFlareRotate.setAngle(-xRotationValue);
+//            yFlareRotate.setAngle(-yRotationValue);
+//            zFlareRotate.setAngle((xRotationValue + yRotationValue) / 10);
         });
         // ================================== Rotation ================================== //
 
@@ -190,23 +221,29 @@ public class Main extends Application {
     }
 
     private static void handleRadius() {
-        double ratio = 100;
-        if ((camera.getTranslateZ() <= -4e8 && !isRadiusIncreased) || camera.getTranslateZ() >= -4e8 && isRadiusIncreased){
-            if(!isRadiusIncreased) {
+        double baseRatio = 100;
+        if ((camera.getTranslateZ() <= -4e8 && !isRadiusIncreased) || camera.getTranslateZ() >= -4e8 && isRadiusIncreased) {
+            if (!isRadiusIncreased) {
                 System.out.println("increasing");
-                for (Body body : bodies) {
-                    if (bodies.indexOf(body) == 0) continue;
-                    body.setRadius(body.getRadius() * ratio);
-                }
                 isRadiusIncreased = true;
-            }else {
+            } else {
                 System.out.println("decreasing");
-                for (Body body : bodies) {
-                    if (bodies.indexOf(body) == 0) continue;
-                    body.setRadius(body.getRadius() / ratio);
-                }
+                baseRatio = 1;
                 isRadiusIncreased = false;
             }
+            changeRadius(baseRatio);
+        }
+    }
+
+    private static void changeRadius(double ratio) {
+        for (Body body : bodies) {
+            double usableRatio = ratio;
+            if (bodies.indexOf(body) == 0) usableRatio = Math.sqrt(ratio);
+            Timeline til = new Timeline(new KeyFrame(
+                    Duration.millis(1500),
+                    new KeyValue(body.radiusProperty(), body.getBaseRadius() * usableRatio)
+            ));
+            radiusHandler.execute(til::play);
         }
     }
 
@@ -226,7 +263,8 @@ public class Main extends Application {
         camera.translateYProperty().bind(lockedObject.translateYProperty());
         if (camera.translateZProperty().isBound()) { // camera is locked
             camera.translateZProperty().unbind();
-            lockCamera();  lockCamera();
+            lockCamera();
+            lockCamera();
         } else {
             camera.setTranslateZ(lockedObject.getTranslateZ() + (lockedObject.getRadius() * -4));
         }
@@ -236,7 +274,9 @@ public class Main extends Application {
     static void lockCamera() {
         if (!isCameraLocked) {
             isCameraLocked = true;
-            camera.translateZProperty().bind(lockedObject.translateZProperty().add(lockedObject.getRadius() * -20));
+            camera.translateZProperty().bind(lockedObject.translateZProperty().add
+                    (lockedObject.radiusProperty().multiply(-20)));
+            changeRadius(1);
         } else {
             isCameraLocked = false;
             camera.translateZProperty().unbind();
@@ -258,6 +298,7 @@ public class Main extends Application {
     @Override
     public void stop() throws Exception {
         pool.stopSimulation();
+        radiusHandler.shutdown();
         super.stop();
     }
 }
