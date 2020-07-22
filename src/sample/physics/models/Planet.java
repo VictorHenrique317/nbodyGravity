@@ -4,6 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Box;
 import javafx.scene.transform.Rotate;
 
 import java.util.ArrayList;
@@ -98,17 +99,19 @@ public class Planet extends Body {
         material.setDiffuseMap(text);
 
         Planet saturn = new Planet(60_268e3,0 ,0 ,13.52e11,  568e24 , "Saturn", null);
-        ImageView ring = new ImageView(ring_text);
-        double value = 1e7;
-        ring.setFitWidth(value);
-        ring.setFitHeight(value);
-        ring.setLayoutX(value/-2);
-        ring.setLayoutY(value/-2);
+        double value = 100;
+
+//        ImageView ring = new ImageView(ring_text);
+        Box ring = new Box(value, value, 0.5);
+//        ring.setFitWidth(value);
+//        ring.setFitHeight(value);
+//        ring.setLayoutX(value/-2);
+//        ring.setLayoutY(value/-2);
         ring.translateXProperty().bind(saturn.translateXProperty());
         ring.translateYProperty().bind(saturn.translateYProperty());
         ring.translateZProperty().bind(saturn.translateZProperty());
         ring.setRotationAxis(Rotate.X_AXIS);
-//        ring.rotateProperty().bind(saturn.rotateProperty());
+        ring.setRotate(90);
 
         saturn.setxVelocity(0.9e4);
         saturn.setMaterial(material);

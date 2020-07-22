@@ -45,7 +45,6 @@ public class Main extends Application {
     private static SimpleDoubleProperty yAngle = new SimpleDoubleProperty(0);
     private static Rotate xRotate;
     private static Rotate yRotate;
-    private Collection<Node> nodesToRotate;
 
 
     @Override
@@ -54,11 +53,11 @@ public class Main extends Application {
         pool = new GravityPool(GravityPool.Types.classic, bodies.get(0));
 //        pool = new GravityPool(GravityPool.Types.Nbody);
         pool.addAll(bodies);
-        pool.reduceScaleBy(1e2);
+        pool.reduceScaleBy(1e8);
 //        pool.reduceScaleBy(1);
 
         camera.setNearClip(0.01);
-        camera.setFarClip(10_000_000);
+        camera.setFarClip(1_000_000);
         camera.setTranslateZ(-2_202_020);
 
         FXMLLoader fxmlLoader = new FXMLLoader();
@@ -95,11 +94,12 @@ public class Main extends Application {
         Body jupiter = Planet.jupiter();
         ArrayList<Node> saturnAndRing = Planet.saturn();
         bodies = new ArrayList<>(List.of(sun, mercury, venus, earth, mars, jupiter, (Body) saturnAndRing.get(0)));
+//        ArrayList<Body> planets = new ArrayList<>(bodies);
+//        planets.remove((Body) saturnAndRing.get(0));
 
         objectGroup.getChildren().addAll(bodies);
-        mainGroup.getChildren().add(saturnAndRing.get(1));
-        nodesToRotate = new ArrayList<>();
-        nodesToRotate.add(saturnAndRing.get(1));
+        objectGroup.getChildren().add(saturnAndRing.get(1));
+//        objectGroup.getChildren().add(saturnAndRing.get(0));
     }
 
     private void initKeyboardControl(MainScene controller) {
@@ -121,28 +121,6 @@ public class Main extends Application {
                 yRotate = new Rotate(0, Rotate.Y_AXIS)
         );
 
-        nodesToRotate.forEach((node)->{
-            Rotate nodeXRotate = new Rotate(0, Rotate.X_AXIS);
-            DoubleProperty fitWidth = ((ImageView)node).fitWidthProperty();
-            nodeXRotate.pivotXProperty().bind(fitWidth.divide(4).add(nodeXRotate.getPivotX()));
-            nodeXRotate.pivotYProperty().bind(fitWidth.divide(4).add(nodeXRotate.getPivotY()));
-            nodeXRotate.pivotZProperty().bind(fitWidth.divide(4).add(nodeXRotate.getPivotZ()));
-//            nodeXRotate.angleProperty().bind(xAngle);
-
-            Rotate nodeYRotate = new Rotate(0, Rotate.Y_AXIS);
-            nodeYRotate.pivotXProperty().bind(fitWidth.divide(2).add(nodeYRotate.getPivotX()));
-            nodeYRotate.pivotYProperty().bind(fitWidth.divide(2).add(nodeYRotate.getPivotY()));
-            nodeYRotate.pivotZProperty().bind(fitWidth.divide(2).add(nodeYRotate.getPivotZ()));
-            nodeYRotate.angleProperty().bind(yAngle);
-
-            node.getTransforms().addAll(nodeXRotate, nodeYRotate);
-//            nodeYRotate.setAngle(45);
-//            node.setRotationAxis(Rotate.X_AXIS);
-//            node.rotateProperty().bind(xAngle);
-//            System.out.println();
-            System.out.println("=============" + nodeXRotate.pivotXProperty().doubleValue());
-            System.out.println("=============" + node.translateXProperty().doubleValue());
-        });
         xRotate.angleProperty().bind(xAngle);
         yRotate.angleProperty().bind(yAngle);
 
@@ -221,8 +199,9 @@ public class Main extends Application {
     }
 
     private static void handleRadius() {
-        double baseRatio = 100;
-        if ((camera.getTranslateZ() <= -4e8 && !isRadiusIncreased) || camera.getTranslateZ() >= -4e8 && isRadiusIncreased) {
+        System.out.println(camera.getTranslateZ());
+        double baseRatio = 81;
+        if ((camera.getTranslateZ() <= -2e3 && !isRadiusIncreased) || camera.getTranslateZ() >= -2e3 && isRadiusIncreased) {
             if (!isRadiusIncreased) {
                 System.out.println("increasing");
                 isRadiusIncreased = true;

@@ -96,7 +96,7 @@ public final class GravityPool {
     }
 
     public void changeSpeed(double speed) {
-        speed *= 1e3/scaleReduction;
+        speed *= Math.sqrt(scaleReduction*10/scaleReduction);
         stopSimulation();
         if (speed > 0) this.speed = speed;
         System.out.println("Changing speed to " + this.speed);
@@ -108,7 +108,7 @@ public final class GravityPool {
             throw new IllegalStateException("No bodies");
         }
         this.scaleReduction = scaleReduction;
-        double radiusBaseValue = 2e3;
+        double radiusBaseValue = 1.05;
         this.G = 6.66e-11;
 
         for (Body body : bodies) {
@@ -120,10 +120,13 @@ public final class GravityPool {
 
             double exponent = 0;
             for (double i = body.getRadius(); i >= 10; i /= 10) {
-                exponent++;
+                exponent += 10;
             }
-            double newRadius = Math.pow(radiusBaseValue, exponent / 4);
-            body.setBaseRadius(newRadius);
+//            exponent *= 2;
+            System.out.println("================== exponent for " + body.getName() + " is " +exponent);
+//            double newRadius = Math.pow(radiusBaseValue, exponent);
+            double newRadius = body.getBaseRadius()/10e8;
+            body.setBaseRadius(10 * newRadius);
             System.out.println("Scaled velocity is " + body.getXVelocity());
             System.out.println("    Scaled radius is " + body.getRadius());
 
