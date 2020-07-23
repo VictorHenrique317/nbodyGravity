@@ -3,8 +3,10 @@ package sample.physics.models;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.util.Duration;
 
@@ -30,9 +32,10 @@ public class Star extends Body {
         Star sun = new Star(696_340e3, 0, 0, 0, 1.9e30, "Sun", icon);
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseMap(texture);
+//        material.setDiffuseColor(Color.WHITE);
+//        material.setSpecularColor(Color.WHITE);
         material.setSelfIlluminationMap(ilm_map);
         sun.setMaterial(material);
-
         return sun;
     }
 

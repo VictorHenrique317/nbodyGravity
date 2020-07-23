@@ -13,6 +13,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -32,12 +34,13 @@ public class Main extends Application {
     private static boolean isCameraLocked = false;
     private static boolean isRadiusIncreased = false;
     private static ExecutorService radiusHandler = Executors.newSingleThreadExecutor();
-
+    private static SimpleDoubleProperty cameraZ =  new SimpleDoubleProperty(0);
     // ================================= Mechanics ================================= //
     public static final Group objectGroup = new Group();
     private static final Group mainGroup = new Group();
     private static GravityPool pool;
     private static Body lockedObject;
+    private static Body centralBody = null;
     // ================================= Rotation ================================= //
     private static double xAnchor, yAnchor, xAngleAnchor, yAngleAnchor;
     private static ArrayList<Body> bodies;
@@ -79,7 +82,7 @@ public class Main extends Application {
 
         initMouseCommand(mainScene);
         initKeyboardControl(controller);
-        trackObject((Body) objectGroup.getChildren().get(0));
+        trackObject(centralBody);
         pool.startSimulation();
         primaryStage.show();
 
@@ -87,6 +90,41 @@ public class Main extends Application {
 
     private void createBodies() {
         Star sun = Star.sun();
+        centralBody = sun;
+
+//        double radius = 10;
+//        radius.bind(sun.radiusProperty());
+
+//        PointLight light1 = new PointLight();
+//        light1.setTranslateX(10);
+
+//        PointLight light2 = new PointLight();
+//        light2.setTranslateX(-10);
+
+//        objectGroup.getChildren().addAll(light1, light2);
+        AmbientLight ambientLight = new AmbientLight();
+        ambientLight.setColor(Color.rgb(61, 61, 61));
+        PointLight light = new PointLight();
+
+//        for(int x = -20; x <= 20 ; x++){ //x^2 + z^2 = r^2
+//            double zValue = Math.sqrt(radius*radius - x*x );
+//            Sphere sphere1 = new Sphere(1);
+//            PointLight light1 = new PointLight();
+//            light1.setTranslateX(x);
+//            sphere1.setTranslateX(x);
+//            light1.setTranslateZ(zValue);
+//            sphere1.setTranslateZ(zValue);
+//
+//            Sphere sphere2 = new Sphere(1);
+//            PointLight light2 = new PointLight();
+//            light2.setTranslateX(x);
+//            sphere2.setTranslateX(x);
+//            light2.setTranslateZ(zValue * -1);
+//            sphere2.setTranslateZ(zValue * -1);
+//            objectGroup.getChildren().addAll(light1, light2, sphere1, sphere2);
+//
+//        }
+
         Body mercury = Planet.mercury();
         Body venus = Planet.venus();
         Body earth = Planet.earth();
@@ -99,8 +137,10 @@ public class Main extends Application {
 
         objectGroup.getChildren().addAll(bodies);
         objectGroup.getChildren().add(saturnAndRing.get(1));
-//        objectGroup.getChildren().add(saturnAndRing.get(0));
+        objectGroup.getChildren().add(ambientLight);
+        objectGroup.getChildren().add(light);
     }
+
 
     private void initKeyboardControl(MainScene controller) {
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, (event) -> {
@@ -108,12 +148,6 @@ public class Main extends Application {
             if (event.getCode() == KeyCode.COMMA) controller.decelerateSimulation();
         });
     }
-    //A always
-    //B never
-    //C rarely
-    //D sometimes
-    //E often
-    //F usually
 
     private void initMouseCommand(Scene scene) {
         Main.objectGroup.getTransforms().addAll(
@@ -176,19 +210,19 @@ public class Main extends Application {
         // ================================== Rotation ================================== //
 
         // ================================== Scrolling ================================== //
+
         primaryStage.addEventHandler(ScrollEvent.SCROLL, (scrollEvent -> {
             double mouseDelta = scrollEvent.getDeltaY(); // zoom in > 0 / zoom out < 0
             double zDelta = camera.getTranslateZ() - lockedObject.getTranslateZ();
 
-            if ((int) zDelta >= (int) (lockedObject.getRadius() * -2)) {
+            if (zDelta >= (lockedObject.getRadius() * -2)) {
                 if (mouseDelta > 0) {
-                    camera.setTranslateZ(lockedObject.getTranslateZ() + (lockedObject.getRadius() * -2));
                     return;
                 }
             }
             double scrollingVelocity = (zDelta * -1) / 1e3;
             try {
-                camera.setTranslateZ(camera.getTranslateZ() + (mouseDelta * scrollingVelocity));
+                cameraZ.set(cameraZ.doubleValue() + (mouseDelta * scrollingVelocity));
                 handleRadius();
             } catch (java.lang.RuntimeException e) {
                 //dumb code
@@ -199,8 +233,7 @@ public class Main extends Application {
     }
 
     private static void handleRadius() {
-        System.out.println(camera.getTranslateZ());
-        double baseRatio = 81;
+        double baseRatio = 144;
         if ((camera.getTranslateZ() <= -2e3 && !isRadiusIncreased) || camera.getTranslateZ() >= -2e3 && isRadiusIncreased) {
             if (!isRadiusIncreased) {
                 System.out.println("increasing");
@@ -240,13 +273,10 @@ public class Main extends Application {
 
         camera.translateXProperty().bind(lockedObject.translateXProperty());
         camera.translateYProperty().bind(lockedObject.translateYProperty());
-        if (camera.translateZProperty().isBound()) { // camera is locked
-            camera.translateZProperty().unbind();
-            lockCamera();
-            lockCamera();
-        } else {
-            camera.setTranslateZ(lockedObject.getTranslateZ() + (lockedObject.getRadius() * -4));
-        }
+
+        cameraZ.set(0);
+        camera.translateZProperty().bind(cameraZ.add(lockedObject.translateZProperty().add
+                (lockedObject.radiusProperty().multiply(-4))));
         handleRadius();
     }
 
@@ -258,7 +288,7 @@ public class Main extends Application {
             changeRadius(1);
         } else {
             isCameraLocked = false;
-            camera.translateZProperty().unbind();
+            trackObject(lockedObject);
         }
     }
 

@@ -4,6 +4,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 import sample.physics.models.Body;
+import sample.physics.models.Planet;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -12,7 +13,7 @@ import java.util.concurrent.Executors;
 public final class GravityPool {
     private final Body centralBody;
     private ArrayList<Body> bodies;
-    private Collection<Timeline> timeLines;
+    private Collection<Timeline> translationTimeLines;
     private double G = -1;
 
     public enum Types {Nbody, classic}
@@ -32,17 +33,22 @@ public final class GravityPool {
     }
     public GravityPool(Types simulationType, Body centralBody) {
         bodies = new ArrayList<>();
-        timeLines = new ArrayList<>();
+        translationTimeLines = new ArrayList<>();
         this.speed = 1;
         this.centralBody = centralBody;
         this.simulationType = simulationType;
     }
 
     public void stopSimulation() {
-        for (Timeline timeline : this.timeLines) {
+        for (Timeline timeline : this.translationTimeLines) {
             timeline.stop();
         }
-        this.timeLines.clear();
+        for (Body body: bodies){
+            if (body instanceof Planet){
+                ((Planet) body).stopRotation();
+            }
+        }
+        this.translationTimeLines.clear();
         this.executor.shutdown();
         this.executor = null;
     }
@@ -64,8 +70,13 @@ public final class GravityPool {
         configureGravity(centralBody);
         executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            for (Timeline timeline : timeLines) {
+            for (Timeline timeline : translationTimeLines) {
                 timeline.play();
+            }
+            for (Body body: bodies){
+                if (body instanceof Planet){
+                    ((Planet) body).startRotation(speed);
+                }
             }
         });
     }
@@ -91,12 +102,12 @@ public final class GravityPool {
                         }));
             }
             til.setCycleCount(Timeline.INDEFINITE);
-            timeLines.add(til);
+            translationTimeLines.add(til);
         }
     }
 
     public void changeSpeed(double speed) {
-        speed *= Math.sqrt(scaleReduction*10/scaleReduction);
+//        speed *= 1/10;
         stopSimulation();
         if (speed > 0) this.speed = speed;
         System.out.println("Changing speed to " + this.speed);
