@@ -15,6 +15,7 @@ public final class GravityPool {
     private ArrayList<Body> bodies;
     private Collection<Timeline> translationTimeLines;
     private double G = -1;
+    private boolean flag = true;
 
     public enum Types {Nbody, classic}
     private Types simulationType;
@@ -43,11 +44,11 @@ public final class GravityPool {
         for (Timeline timeline : this.translationTimeLines) {
             timeline.stop();
         }
-        for (Body body: bodies){
-            if (body instanceof Planet){
-                ((Planet) body).stopRotation();
-            }
-        }
+//        for (Body body: bodies){
+//            if (body instanceof Planet){
+//                ((Planet) body).stopRotation();
+//            }
+//        }
         this.translationTimeLines.clear();
         this.executor.shutdown();
         this.executor = null;
@@ -73,9 +74,12 @@ public final class GravityPool {
             for (Timeline timeline : translationTimeLines) {
                 timeline.play();
             }
-            for (Body body: bodies){
-                if (body instanceof Planet){
-                    ((Planet) body).startRotation(speed);
+            if (flag){
+                flag = false;
+                for (Body body: bodies){
+                    if (body instanceof Planet){
+                        ((Planet) body).startRotation();
+                    }
                 }
             }
         });

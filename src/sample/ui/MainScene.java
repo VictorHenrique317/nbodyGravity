@@ -132,19 +132,21 @@ public class MainScene {
         if (hyperwarpMultiplier == 1){ // enable
             System.out.println("Activating hyperwarp");
             hyperwarpMultiplier = 10;
-            pool.changeSpeed(this.speed * hyperwarpMultiplier);
+            this.speed *= 10;
+            pool.changeSpeed(this.speed);
             return;
         }
         if (hyperwarpMultiplier == 10){ // disable
             System.out.println("Deactivating hyperwarp");
             hyperwarpMultiplier = 1;
-            pool.changeSpeed(this.speed * hyperwarpMultiplier);
+            this.speed /= 10;
+            pool.changeSpeed(this.speed);
         }
     }
 
     @FXML
     private void onFirstArrowClick(){
-        controlSpeed(firstArrow, 1);
+        controlSpeed(firstArrow, 1 * this.hyperwarpMultiplier);
         makeArrowEmpty(secondArrow);
         makeArrowEmpty(thirdArrow);
         makeArrowEmpty(fourthArrow);
