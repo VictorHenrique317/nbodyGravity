@@ -232,6 +232,15 @@ public class MainScene {
         subScene.widthProperty().bind(centerBox.widthProperty());
         subScene.heightProperty().bind(centerBox.heightProperty());
         centerBox.getChildren().add(subScene);
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("centerBox size is " + centerBox.getWidth() + "x" + centerBox.getHeight());
+
+            }
+        };
+        timer.scheduleAtFixedRate(task, 0 ,1000);
     }
 
 }

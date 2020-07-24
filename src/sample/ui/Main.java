@@ -54,10 +54,8 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
         createBodies();
         pool = new GravityPool(GravityPool.Types.classic, bodies.get(0));
-//        pool = new GravityPool(GravityPool.Types.Nbody);
         pool.addAll(bodies);
         pool.reduceScaleBy(1e8);
-//        pool.reduceScaleBy(1);
 
         camera.setNearClip(0.01);
         camera.setFarClip(1_000_000);
@@ -71,14 +69,25 @@ public class Main extends Application {
         SubScene subScene = new SubScene(mainGroup, 1200, 700, true, SceneAntialiasing.BALANCED);
         subScene.setFill(Color.BLACK);
         subScene.setCamera(camera);
-        subScene.widthProperty().bind(mainScene.widthProperty());
-        controller.setCenter(subScene);
-        controller.setGravityPool(pool);
         primaryStage = stage;
-        primaryStage.setTitle("Hello World");
+        primaryStage.setTitle("");
         primaryStage.setScene(mainScene);
 
+        controller.setCenter(subScene);
+        controller.setGravityPool(pool);
+
+
         mainGroup.getChildren().add(objectGroup);
+
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("Subscene size is " + subScene.getWidth() + "x" + subScene.getHeight());
+
+            }
+        };
+//        timer.scheduleAtFixedRate(task, 0 ,1000);
 
         initMouseCommand(mainScene);
         initKeyboardControl(controller);
@@ -91,39 +100,10 @@ public class Main extends Application {
     private void createBodies() {
         Star sun = Star.sun();
         centralBody = sun;
-
-//        double radius = 10;
-//        radius.bind(sun.radiusProperty());
-
-//        PointLight light1 = new PointLight();
-//        light1.setTranslateX(10);
-
-//        PointLight light2 = new PointLight();
-//        light2.setTranslateX(-10);
-
-//        objectGroup.getChildren().addAll(light1, light2);
         AmbientLight ambientLight = new AmbientLight();
         ambientLight.setColor(Color.rgb(61, 61, 61));
         PointLight light = new PointLight();
 
-//        for(int x = -20; x <= 20 ; x++){ //x^2 + z^2 = r^2
-//            double zValue = Math.sqrt(radius*radius - x*x );
-//            Sphere sphere1 = new Sphere(1);
-//            PointLight light1 = new PointLight();
-//            light1.setTranslateX(x);
-//            sphere1.setTranslateX(x);
-//            light1.setTranslateZ(zValue);
-//            sphere1.setTranslateZ(zValue);
-//
-//            Sphere sphere2 = new Sphere(1);
-//            PointLight light2 = new PointLight();
-//            light2.setTranslateX(x);
-//            sphere2.setTranslateX(x);
-//            light2.setTranslateZ(zValue * -1);
-//            sphere2.setTranslateZ(zValue * -1);
-//            objectGroup.getChildren().addAll(light1, light2, sphere1, sphere2);
-//
-//        }
 
         Body mercury = Planet.mercury();
         Body venus = Planet.venus();
@@ -131,14 +111,18 @@ public class Main extends Application {
         Body mars = Planet.mars();
         Body jupiter = Planet.jupiter();
         ArrayList<Node> saturnAndRing = Planet.saturn();
-        bodies = new ArrayList<>(List.of(sun, mercury, venus, earth, mars, jupiter, (Body) saturnAndRing.get(0)));
-//        ArrayList<Body> planets = new ArrayList<>(bodies);
-//        planets.remove((Body) saturnAndRing.get(0));
+        ArrayList<Node> uranusAndRing = Planet.uranus();
+        Body neptune = Planet.neptune();
+        bodies = new ArrayList<>(List.of(sun, mercury, venus, earth, mars, jupiter,
+                (Body) saturnAndRing.get(0), (Body) uranusAndRing.get(0), neptune));
 
         objectGroup.getChildren().addAll(bodies);
         objectGroup.getChildren().add(saturnAndRing.get(1));
+        objectGroup.getChildren().add(uranusAndRing.get(1));
         objectGroup.getChildren().add(ambientLight);
         objectGroup.getChildren().add(light);
+
+
     }
 
 
@@ -158,33 +142,13 @@ public class Main extends Application {
         xRotate.angleProperty().bind(xAngle);
         yRotate.angleProperty().bind(yAngle);
 
-
-//        final ArrayList<ImageView> flares = new ArrayList<>();
-//        Rotate xFlareRotate = new Rotate(0, Rotate.X_AXIS);
-//        Rotate yFlareRotate = new Rotate(0, Rotate.Y_AXIS);
-//        Rotate zFlareRotate = new Rotate(0, Rotate.Z_AXIS);
-
         for (Node child : objectGroup.getChildren()) {
             child.setOnMouseClicked((mouseEvent) -> {
                 if (mouseEvent.getClickCount() == 2) {
                     trackObject((Body) child);
                 }
             });
-//            if (child instanceof ImageView) {
-//                child.getTransforms().addAll(yFlareRotate, xFlareRotate, zFlareRotate);
-//                flares.add((ImageView) child);
-//            }
         }
-//        if (flares.size() > 0) {
-//            xFlareRotate.pivotXProperty().bind(flares.get(0).layoutXProperty().multiply(-1));
-//            xFlareRotate.pivotYProperty().bind(flares.get(0).layoutYProperty().multiply(-1));
-//
-//            yFlareRotate.pivotXProperty().bind(flares.get(0).layoutXProperty().multiply(-1));
-//            yFlareRotate.pivotYProperty().bind(flares.get(0).layoutYProperty().multiply(-1));
-//
-//            zFlareRotate.pivotXProperty().bind(flares.get(0).layoutXProperty().multiply(-1));
-//            zFlareRotate.pivotYProperty().bind(flares.get(0).layoutYProperty().multiply(-1));
-//        }
 
         // ================================== Rotation ================================== //
         scene.setOnMousePressed(mouseEvent -> {
@@ -203,9 +167,6 @@ public class Main extends Application {
 
             xAngle.set(xRotationValue);
             yAngle.set(yRotationValue);
-//            xFlareRotate.setAngle(-xRotationValue);
-//            yFlareRotate.setAngle(-yRotationValue);
-//            zFlareRotate.setAngle((xRotationValue + yRotationValue) / 10);
         });
         // ================================== Rotation ================================== //
 
@@ -233,8 +194,8 @@ public class Main extends Application {
     }
 
     private static void handleRadius() {
-        double baseRatio = 144;
-        if ((camera.getTranslateZ() <= -2e3 && !isRadiusIncreased) || camera.getTranslateZ() >= -2e3 && isRadiusIncreased) {
+        double baseRatio = 196;
+        if ((camera.getTranslateZ() <= -1.5e3 && !isRadiusIncreased) || camera.getTranslateZ() >= -1.5e3 && isRadiusIncreased) {
             if (!isRadiusIncreased) {
                 System.out.println("increasing");
                 isRadiusIncreased = true;

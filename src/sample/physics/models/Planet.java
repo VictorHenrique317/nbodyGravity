@@ -23,36 +23,24 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Planet extends Body {
-    private static final double rotationPeriod = 10;
-    private final double inclination;
+    private static final double rotationPeriod = 30;
     private final Cylinder ring;
 
-    public Planet(double radius, double x, double y, double z, double mass, String name, Image icon, double inclination) {
-        this(radius, x, y, z, mass, name, icon, inclination, null);
+    public Planet(double radius, double x, double y, double z, double mass, String name, Image icon) {
+        this(radius, x, y, z, mass, name, icon, null);
     }
-    public Planet(double radius, double x, double y, double z, double mass, String name, Image icon,
-                  double inclination, Cylinder ring) {
+    public Planet(double radius, double x, double y, double z, double mass, String name, Image icon, Cylinder ring) {
         super(radius, x, y, z, mass, name, icon);
-        this.inclination = inclination;
         this.ring = ring;
     }
 
     public void startRotation() {
-        Rotate rotate = new Rotate(inclination, Rotate.X_AXIS);
-        this.getTransforms().add(rotate);
-        if (ring != null) ring.getTransforms().add(rotate);
-
-        Point3D axis = new Point3D(0.5, 0.5, 0);
-        System.out.println("AXis " + axis); // todo solve
-        this.setRotationAxis(axis);
+        this.setRotationAxis(Rotate.Y_AXIS);
         Timeline rotationTimeline = new Timeline(new KeyFrame(
                 Duration.seconds(rotationPeriod),
                 new KeyValue(this.rotateProperty(), 360)
         ));
         rotationTimeline.setCycleCount(Timeline.INDEFINITE);
-        if (this.getName().equals("Mercury")) {
-            System.out.println("rotation period is " + (rotationPeriod));
-        }
         ExecutorService rotationExecutor = Executors.newSingleThreadExecutor();
         rotationExecutor.execute(rotationTimeline::play);
     }
@@ -66,7 +54,7 @@ public class Planet extends Body {
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseMap(text);
         //5.8e10
-        Planet mercury = new Planet(2_439e3, 0, 0, 0.46e11, 0.32E24, "Mercury", icon, 0);
+        Planet mercury = new Planet(2_439e3, 0, 0, 0.46e11, 0.32E24, "Mercury", icon);
         mercury.setxVelocity(5.8e4);
         mercury.setMaterial(material);
         return mercury;
@@ -80,7 +68,7 @@ public class Planet extends Body {
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseMap(text);
 
-        Planet venus = new Planet(6_051e3, 0, 0, 1.07e11, 4.867e24, "Venus", icon,0);
+        Planet venus = new Planet(6_051e3, 0, 0, 1.07e11, 4.8e24, "Venus", icon);
         venus.setxVelocity(3.5e4);
         venus.setMaterial(material);
         return venus;
@@ -96,7 +84,7 @@ public class Planet extends Body {
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseMap(text);
 
-        Planet earth = new Planet(6_378e3, 0, 0, 1.47e11, 5.9e24, "Earth", icon, 0);
+        Planet earth = new Planet(6_378e3, 0, 0, 1.47e11, 5.9e24, "Earth", icon);
         earth.setxVelocity(3e4);
         earth.setMaterial(material);
         return earth;
@@ -110,7 +98,7 @@ public class Planet extends Body {
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseMap(text);
 
-        Planet mars = new Planet(3_396e3, 0, 0, 2.06e11, 0.64e24, "Mars", icon, 0);
+        Planet mars = new Planet(3_396e3, 0, 0, 2.06e11, 0.64e24, "Mars", icon);
         mars.setxVelocity(2.6e4);
         mars.setMaterial(material);
         return mars;
@@ -124,7 +112,7 @@ public class Planet extends Body {
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseMap(text);
 
-        Planet jupiter = new Planet(71_398e3, 0, 0, 7.4e11, 1_898e24, "Jupiter", icon, 0);
+        Planet jupiter = new Planet(71_398e3, 0, 0, 7.4e11, 1_898e24, "Jupiter", icon);
         jupiter.setxVelocity(1.3e4);
         jupiter.setMaterial(material);
         return jupiter;
@@ -145,8 +133,7 @@ public class Planet extends Body {
         SimpleDoubleProperty ringRadius = new SimpleDoubleProperty(0);
         Cylinder ring = new Cylinder(ringRadius.doubleValue(), 0.01);
 
-        Planet saturn = new Planet(60_268e3, 0, 0, 13.52e11, 568e24,
-                "Saturn", icon, 45, ring);
+        Planet saturn = new Planet(60_268e3, 0, 0, 13.52e11, 568e24, "Saturn", icon, ring);
         ringRadius.bind(saturn.radiusProperty().multiply(3));
 
         ring.setMaterial(ringMaterial);
@@ -159,6 +146,50 @@ public class Planet extends Body {
         saturn.setxVelocity(0.9e4);
         saturn.setMaterial(material);
         return new ArrayList<>(List.of(saturn, ring));
+    }
+
+    public static ArrayList<Node> uranus() {
+        Image icon = new Image(Objects.requireNonNull(
+                Planet.class.getClassLoader().getResource("uranus.png")).toExternalForm());
+        Image text = new Image(Objects.requireNonNull(
+                Planet.class.getClassLoader().getResource("uranus_texture.jpg")).toExternalForm());
+        Image ringText = new Image(Objects.requireNonNull(
+                Planet.class.getClassLoader().getResource("uranus_ring.png")).toExternalForm());
+        PhongMaterial material = new PhongMaterial();
+        PhongMaterial ringMaterial = new PhongMaterial();
+
+        material.setDiffuseMap(text);
+        ringMaterial.setDiffuseMap(ringText);
+
+        SimpleDoubleProperty ringRadius = new SimpleDoubleProperty(0);
+        Cylinder ring = new Cylinder(ringRadius.doubleValue(), 0.01);
+        Planet uranus = new Planet(25_559e3, 0, 0, 27.4e11, 86e24, "Uranus", icon, ring);
+        ringRadius.bind(uranus.radiusProperty().multiply(2.5));
+        ring.setMaterial(ringMaterial);
+
+        ring.radiusProperty().bind(ringRadius);
+        ring.translateXProperty().bind(uranus.translateXProperty());
+        ring.translateYProperty().bind(uranus.translateYProperty());
+        ring.translateZProperty().bind(uranus.translateZProperty());
+        ring.setRotationAxis(Rotate.Z_AXIS);
+        ring.setRotate(89);
+        uranus.setxVelocity(0.7e4);
+        uranus.setMaterial(material);
+        return new ArrayList<>(List.of(uranus, ring));
+    }
+
+    public static Body neptune() {
+        Image icon = new Image(Objects.requireNonNull(
+                Planet.class.getClassLoader().getResource("neptune.png")).toExternalForm());
+        Image text = new Image(Objects.requireNonNull(
+                Planet.class.getClassLoader().getResource("neptune_texture.jpg")).toExternalForm());
+        PhongMaterial material = new PhongMaterial();
+        material.setDiffuseMap(text);
+
+        Planet neptune = new Planet(24_764e3, 0, 0, 44.4e11, 102e24, "Neptune", icon);
+        neptune.setxVelocity(0.5e4);
+        neptune.setMaterial(material);
+        return neptune;
     }
 
 }
