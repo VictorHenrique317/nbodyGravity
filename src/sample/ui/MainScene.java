@@ -3,17 +3,19 @@ package sample.ui;
 import com.jfoenix.controls.JFXDrawer;
 import com.jfoenix.controls.JFXHamburger;
 import com.jfoenix.controls.JFXRadioButton;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.SubScene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import sample.physics.models.Body;
 import sample.physics.GravityPool;
 
@@ -228,19 +230,11 @@ public class MainScene {
         return borderPane;
     }
 
-    public void setCenter(SubScene subScene) {
-        subScene.widthProperty().bind(centerBox.widthProperty());
-        subScene.heightProperty().bind(centerBox.heightProperty());
+    public void setCenter(SubScene subScene, Scene scene) {
+        subScene.widthProperty().bind(scene.widthProperty().subtract(200));
+        subScene.heightProperty().bind(scene.heightProperty().subtract(75));
         centerBox.getChildren().add(subScene);
-        Timer timer = new Timer();
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                System.out.println("centerBox size is " + centerBox.getWidth() + "x" + centerBox.getHeight());
 
-            }
-        };
-        timer.scheduleAtFixedRate(task, 0 ,1000);
     }
 
 }

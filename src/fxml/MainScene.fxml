@@ -14,7 +14,7 @@
 
 <BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" stylesheets="stylesheet.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.ui.MainScene">
    <top>
-      <HBox minHeight="75.0" prefHeight="75.0" prefWidth="1200.0" style="-fx-background-color: #252A36;" BorderPane.alignment="CENTER">
+      <HBox minHeight="75.0" prefHeight="75.0" prefWidth="0.0" style="-fx-background-color: #252A36;" BorderPane.alignment="CENTER">
          <children>
             <HBox alignment="TOP_CENTER" prefHeight="134.0" prefWidth="263.0" spacing="10.0">
                <children>
@@ -85,14 +85,14 @@
       </HBox>
    </top>
    <right>
-      <VBox minWidth="200.0" prefHeight="722.0" style="-fx-background-color: #383F51;" BorderPane.alignment="CENTER">
+      <VBox maxWidth="200.0" minWidth="200.0" prefHeight="722.0" prefWidth="200.0" style="-fx-background-color: #383F51;" BorderPane.alignment="CENTER">
          <children>
             <JFXHamburger fx:id="hamburger" onMouseClicked="#handleDrawer" prefHeight="77.0" prefWidth="100.0" />
-            <JFXDrawer fx:id="drawer" defaultDrawerSize="200.0" prefHeight="661.0" prefWidth="100.0" />
+            <JFXDrawer fx:id="drawer" defaultDrawerSize="200.0" prefHeight="661.0" />
          </children>
       </VBox>
    </right>
    <center>
-      <HBox fx:id="centerBox" prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: #AD2B00;" BorderPane.alignment="CENTER" />
+      <HBox fx:id="centerBox" prefHeight="100.0" prefWidth="0.0" style="-fx-background-color: black;" BorderPane.alignment="CENTER" />
    </center>
 </BorderPane>

@@ -4,22 +4,12 @@ import javafx.application.Application;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.PhongMaterial;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
 import sample.physics.models.Body;
-import sample.physics.GravityPool;
-import sample.physics.models.Planet;
-import sample.physics.models.Star;
 
 import java.util.*;
-import java.util.List;
 
 public class test extends Application {
     public static final Group objectGroup = new Group();
@@ -55,7 +45,7 @@ public class test extends Application {
         subScene.widthProperty().bind(mainScene.widthProperty());
 
 
-        controller.setCenter(subScene);
+        controller.setCenter(subScene, mainScene);
 //        controller.setGravityPool(pool);
 
         primaryStage = stage;

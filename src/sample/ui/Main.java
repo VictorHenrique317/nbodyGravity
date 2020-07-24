@@ -69,11 +69,12 @@ public class Main extends Application {
         SubScene subScene = new SubScene(mainGroup, 1200, 700, true, SceneAntialiasing.BALANCED);
         subScene.setFill(Color.BLACK);
         subScene.setCamera(camera);
+//        subScene.maxHeight()
         primaryStage = stage;
         primaryStage.setTitle("");
         primaryStage.setScene(mainScene);
 
-        controller.setCenter(subScene);
+        controller.setCenter(subScene, mainScene);
         controller.setGravityPool(pool);
 
 
@@ -88,7 +89,6 @@ public class Main extends Application {
             }
         };
 //        timer.scheduleAtFixedRate(task, 0 ,1000);
-
         initMouseCommand(mainScene);
         initKeyboardControl(controller);
         trackObject(centralBody);
