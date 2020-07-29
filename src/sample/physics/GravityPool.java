@@ -50,8 +50,8 @@ public final class GravityPool {
 //            }
 //        }
         this.translationTimeLines.clear();
-        this.executor.shutdown();
-        this.executor = null;
+//        this.executor.shutdown();
+//        this.executor = null;
     }
 
 
@@ -70,7 +70,7 @@ public final class GravityPool {
     public void startSimulation() {
         configureGravity(centralBody);
         executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
+//        executor.execute(() -> {
             for (Timeline timeline : translationTimeLines) {
                 timeline.play();
             }
@@ -82,7 +82,7 @@ public final class GravityPool {
                     }
                 }
             }
-        });
+//        });
     }
 
     private void configureGravity(Body centralBody) {

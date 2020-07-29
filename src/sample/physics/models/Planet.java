@@ -43,13 +43,14 @@ public class Planet extends Body {
                 new KeyValue(this.rotateProperty(), 360)
         ));
         rotationTimeline.setCycleCount(Timeline.INDEFINITE);
-        rotationExecutor = Executors.newSingleThreadExecutor();
-        rotationExecutor.execute(rotationTimeline::play);
+//        rotationExecutor = Executors.newSingleThreadExecutor();
+//        rotationExecutor.execute(rotationTimeline::play);
+        rotationTimeline.play();
     }
 
     public void stopRotation(){
         this.rotationTimeline.stop();
-        this.rotationExecutor.shutdown();
+//        this.rotationExecutor.shutdown();
     }
 
 

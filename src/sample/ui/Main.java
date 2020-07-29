@@ -41,11 +41,13 @@ public class Main extends Application {
     // ================================= Mechanics ================================= //
     private static Stage mainStage;
     private static Stage selectionStage;
+    private static SelectionWindow selectionWindowController;
     public static final Group objectGroup = new Group();
     private static final Group mainGroup = new Group();
     private static GravityPool pool;
     private static Body lockedObject;
     private static Body centralBody = null;
+    private static ExecutorService threadPool = Executors.newFixedThreadPool(1);
     // ================================= Rotation ================================= //
     private static double xAnchor, yAnchor, xAngleAnchor, yAngleAnchor;
     private static ArrayList<Body> bodies;
@@ -62,59 +64,69 @@ public class Main extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getClassLoader().getResource("SelectionWindow.fxml"));
         Parent root = fxmlLoader.load();
+        selectionWindowController = fxmlLoader.getController();
         Scene scene = new Scene(root, 600, 400);
         selectionStage.setScene(scene);
         selectionStage.initStyle(StageStyle.UNDECORATED);
 
         selectionStage.show();
-//        createSolarSystem();
-//        createMainScene();
     }
 
     static void createMainScene(){
-        camera.setNearClip(0.01);
-        camera.setFarClip(1_000_000);
-        camera.setTranslateZ(-2_202_020);
+        threadPool.execute(()->{
+            camera.setNearClip(0.01);
+            camera.setFarClip(1_000_000);
+            camera.setTranslateZ(-2_202_020);
 
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(Main.class.getClassLoader().getResource("MainScene.fxml"));
-        Parent root = null;
-        try {
-            root = fxmlLoader.load();
-        }catch (IOException e) { e.printStackTrace();}
-        assert root != null;
-        MainScene controller = fxmlLoader.getController();
-        Scene mainScene = new Scene(root, 1200, 800, true);
-        SubScene subScene = new SubScene(mainGroup, 1200, 700, true, SceneAntialiasing.BALANCED);
-        subScene.setFill(Color.BLACK);
-        subScene.setCamera(camera);
-        primaryStage = mainStage;
-        primaryStage.setTitle("");
-        primaryStage.setScene(mainScene);
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(Main.class.getClassLoader().getResource("MainScene.fxml"));
+            Parent root = null;
+            try {
+                root = fxmlLoader.load();
+            }catch (IOException e) { e.printStackTrace();}
+            assert root != null;
+            MainScene controller = fxmlLoader.getController();
+            Scene mainScene = new Scene(root, 1200, 800, true);
+            SubScene subScene = new SubScene(mainGroup, 1200, 700, true, SceneAntialiasing.BALANCED);
+            subScene.setFill(Color.BLACK);
+            subScene.setCamera(camera);
+            primaryStage = mainStage;
+            primaryStage.setTitle("");
+            Platform.runLater(()-> primaryStage.setScene(mainScene));
 
-        controller.setCenter(subScene, mainScene);
-        controller.setGravityPool(pool);
+            controller.setCenter(subScene, mainScene);
+            controller.setGravityPool(pool);
 
-        mainGroup.getChildren().add(objectGroup);
+            mainGroup.getChildren().add(objectGroup);
 
-        initMouseCommand(mainScene);
-        initKeyboardControl(controller);
-        trackObject(centralBody);
-        selectionStage.close();
-        primaryStage.show();
+            initMouseCommand(mainScene);
+            initKeyboardControl(controller);
+            trackObject(centralBody);
+            Platform.runLater(()->{
+                selectionStage.close();
+                selectionWindowController.stop();
+                primaryStage.show();
+            });
+        });
+
     }
+
 
     static void createCustomSimulation(){
         bodies = new ArrayList<>();
         pool = new GravityPool(GravityPool.Types.Nbody);
+        createMainScene();
     }
 
     static void createSolarSystem(){
-        createBodies();
-        pool = new GravityPool(GravityPool.Types.classic, bodies.get(0));
-        pool.addAll(bodies);
-        pool.reduceScaleBy(1e8);
-        pool.startSimulation();
+        threadPool.execute(()->{
+            createBodies();
+            pool = new GravityPool(GravityPool.Types.classic, bodies.get(0));
+            pool.addAll(bodies);
+            pool.reduceScaleBy(1e8);
+            pool.startSimulation();
+        });
+        createMainScene();
     }
 
     private static void createBodies() {
@@ -141,8 +153,6 @@ public class Main extends Application {
         objectGroup.getChildren().add(uranusAndRing.get(1));
         objectGroup.getChildren().add(ambientLight);
         objectGroup.getChildren().add(light);
-
-
     }
 
 
@@ -306,7 +316,7 @@ public class Main extends Application {
         for (Body body: bodies){
             if (body instanceof Planet){ ((Planet) body).stopRotation(); }
         }
-
+        threadPool.shutdown();
         super.stop();
     }
 }
