@@ -24,6 +24,8 @@ import java.util.concurrent.Executors;
 
 public class Planet extends Body {
     private static final double rotationPeriod = 30;
+    private ExecutorService rotationExecutor;
+    private Timeline rotationTimeline;
     private final Cylinder ring;
 
     public Planet(double radius, double x, double y, double z, double mass, String name, Image icon) {
@@ -36,13 +38,18 @@ public class Planet extends Body {
 
     public void startRotation() {
         this.setRotationAxis(Rotate.Y_AXIS);
-        Timeline rotationTimeline = new Timeline(new KeyFrame(
+        rotationTimeline = new Timeline(new KeyFrame(
                 Duration.seconds(rotationPeriod),
                 new KeyValue(this.rotateProperty(), 360)
         ));
         rotationTimeline.setCycleCount(Timeline.INDEFINITE);
-        ExecutorService rotationExecutor = Executors.newSingleThreadExecutor();
+        rotationExecutor = Executors.newSingleThreadExecutor();
         rotationExecutor.execute(rotationTimeline::play);
+    }
+
+    public void stopRotation(){
+        this.rotationTimeline.stop();
+        this.rotationExecutor.shutdown();
     }
 
 

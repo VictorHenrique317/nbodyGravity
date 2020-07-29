@@ -6,6 +6,12 @@
 }
 
 .jfx-hamburger StackPane {-fx-background-color: white; }
+.jfx-button:hover{
+    -fx-background-color:#383F51;
+}
+#closeBox:hover{
+    -fx-background-color: #E81123;
+}
 
 #hamburger:hover{
     -fx-cursor:hand;

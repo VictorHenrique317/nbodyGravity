@@ -4,6 +4,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXMLLoader;
@@ -17,12 +18,14 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import sample.physics.models.Body;
 import sample.physics.GravityPool;
 import sample.physics.models.Planet;
 import sample.physics.models.Star;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
@@ -36,6 +39,8 @@ public class Main extends Application {
     private static ExecutorService radiusHandler = Executors.newSingleThreadExecutor();
     private static SimpleDoubleProperty cameraZ =  new SimpleDoubleProperty(0);
     // ================================= Mechanics ================================= //
+    private static Stage mainStage;
+    private static Stage selectionStage;
     public static final Group objectGroup = new Group();
     private static final Group mainGroup = new Group();
     private static GravityPool pool;
@@ -52,52 +57,67 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        createBodies();
-        pool = new GravityPool(GravityPool.Types.classic, bodies.get(0));
-        pool.addAll(bodies);
-        pool.reduceScaleBy(1e8);
+        mainStage = stage;
+        selectionStage = new Stage();
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getClassLoader().getResource("SelectionWindow.fxml"));
+        Parent root = fxmlLoader.load();
+        Scene scene = new Scene(root, 600, 400);
+        selectionStage.setScene(scene);
+        selectionStage.initStyle(StageStyle.UNDECORATED);
 
+        selectionStage.show();
+//        createSolarSystem();
+//        createMainScene();
+    }
+
+    static void createMainScene(){
         camera.setNearClip(0.01);
         camera.setFarClip(1_000_000);
         camera.setTranslateZ(-2_202_020);
 
         FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getClassLoader().getResource("MainScene.fxml"));
-        Parent root = fxmlLoader.load();
+        fxmlLoader.setLocation(Main.class.getClassLoader().getResource("MainScene.fxml"));
+        Parent root = null;
+        try {
+            root = fxmlLoader.load();
+        }catch (IOException e) { e.printStackTrace();}
+        assert root != null;
         MainScene controller = fxmlLoader.getController();
         Scene mainScene = new Scene(root, 1200, 800, true);
         SubScene subScene = new SubScene(mainGroup, 1200, 700, true, SceneAntialiasing.BALANCED);
         subScene.setFill(Color.BLACK);
         subScene.setCamera(camera);
-//        subScene.maxHeight()
-        primaryStage = stage;
+        primaryStage = mainStage;
         primaryStage.setTitle("");
         primaryStage.setScene(mainScene);
 
         controller.setCenter(subScene, mainScene);
         controller.setGravityPool(pool);
 
-
         mainGroup.getChildren().add(objectGroup);
 
-        Timer timer = new Timer();
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                System.out.println("Subscene size is " + subScene.getWidth() + "x" + subScene.getHeight());
-
-            }
-        };
-//        timer.scheduleAtFixedRate(task, 0 ,1000);
         initMouseCommand(mainScene);
         initKeyboardControl(controller);
         trackObject(centralBody);
-        pool.startSimulation();
+        selectionStage.close();
         primaryStage.show();
-
     }
 
-    private void createBodies() {
+    static void createCustomSimulation(){
+        bodies = new ArrayList<>();
+        pool = new GravityPool(GravityPool.Types.Nbody);
+    }
+
+    static void createSolarSystem(){
+        createBodies();
+        pool = new GravityPool(GravityPool.Types.classic, bodies.get(0));
+        pool.addAll(bodies);
+        pool.reduceScaleBy(1e8);
+        pool.startSimulation();
+    }
+
+    private static void createBodies() {
         Star sun = Star.sun();
         centralBody = sun;
         AmbientLight ambientLight = new AmbientLight();
@@ -126,14 +146,14 @@ public class Main extends Application {
     }
 
 
-    private void initKeyboardControl(MainScene controller) {
+    private static void initKeyboardControl(MainScene controller) {
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, (event) -> {
             if (event.getCode() == KeyCode.PERIOD) controller.accelerateSimulation();
             if (event.getCode() == KeyCode.COMMA) controller.decelerateSimulation();
         });
     }
 
-    private void initMouseCommand(Scene scene) {
+    private static void initMouseCommand(Scene scene) {
         Main.objectGroup.getTransforms().addAll(
                 xRotate = new Rotate(0, Rotate.X_AXIS),
                 yRotate = new Rotate(0, Rotate.Y_AXIS)
@@ -174,13 +194,19 @@ public class Main extends Application {
 
         primaryStage.addEventHandler(ScrollEvent.SCROLL, (scrollEvent -> {
             double mouseDelta = scrollEvent.getDeltaY(); // zoom in > 0 / zoom out < 0
-            double zDelta = camera.getTranslateZ() - lockedObject.getTranslateZ();
-
-            if (zDelta >= (lockedObject.getRadius() * -2)) {
-                if (mouseDelta > 0) {
-                    return;
+            double zDelta;
+            if (lockedObject == null){
+                zDelta = camera.getTranslateZ();
+            }else{
+                zDelta = camera.getTranslateZ() - lockedObject.getTranslateZ();
+                if (zDelta >= (lockedObject.getRadius() * -2)) {
+                    if (mouseDelta > 0) {
+                        return;
+                    }
                 }
             }
+
+
             double scrollingVelocity = (zDelta * -1) / 1e3;
             try {
                 cameraZ.set(cameraZ.doubleValue() + (mouseDelta * scrollingVelocity));
@@ -221,6 +247,10 @@ public class Main extends Application {
     }
 
     public static void trackObject(Body body) {
+        if (centralBody == null){
+            System.out.println("No object to track");
+            return;
+        }
         lockedObject = body;
         System.out.println("Locking camera at object " + lockedObject.getName());
 
@@ -267,8 +297,16 @@ public class Main extends Application {
 
     @Override
     public void stop() throws Exception {
-        pool.stopSimulation();
-        radiusHandler.shutdown();
+        try{
+            pool.stopSimulation();
+            radiusHandler.shutdown();
+        }catch (NullPointerException e){
+            // pass
+        }
+        for (Body body: bodies){
+            if (body instanceof Planet){ ((Planet) body).stopRotation(); }
+        }
+
         super.stop();
     }
 }
