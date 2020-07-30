@@ -41,6 +41,7 @@ public class Main extends Application {
     // ================================= Mechanics ================================= //
     private static Stage mainStage;
     private static Stage selectionStage;
+    private static Scene mainScene;
     private static SelectionWindow selectionWindowController;
     public static final Group objectGroup = new Group();
     private static final Group mainGroup = new Group();
@@ -55,6 +56,10 @@ public class Main extends Application {
     private static SimpleDoubleProperty yAngle = new SimpleDoubleProperty(0);
     private static Rotate xRotate;
     private static Rotate yRotate;
+
+    public static Camera getCamera() {
+        return camera;
+    }
 
 
     @Override
@@ -76,7 +81,7 @@ public class Main extends Application {
         threadPool.execute(()->{
             camera.setNearClip(0.01);
             camera.setFarClip(1_000_000);
-            camera.setTranslateZ(-2_202_020);
+            camera.setTranslateZ(-50);
 
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(Main.class.getClassLoader().getResource("MainScene.fxml"));
@@ -86,7 +91,7 @@ public class Main extends Application {
             }catch (IOException e) { e.printStackTrace();}
             assert root != null;
             MainScene controller = fxmlLoader.getController();
-            Scene mainScene = new Scene(root, 1200, 800, true);
+            mainScene = new Scene(root, 1200, 800, true);
             SubScene subScene = new SubScene(mainGroup, 1200, 700, true, SceneAntialiasing.BALANCED);
             subScene.setFill(Color.BLACK);
             subScene.setCamera(camera);
@@ -301,8 +306,17 @@ public class Main extends Application {
         }
     }
 
+    static void addBody(Body body){
+        bodies.add(body);
+        objectGroup.getChildren().add(body);
+    }
+
     static Collection<Body> getBodies() {
         return bodies;
+    }
+
+    static Scene getMainScene(){
+        return mainScene;
     }
 
     static boolean isIsCameraLocked() {
