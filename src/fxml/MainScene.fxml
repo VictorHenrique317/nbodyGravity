@@ -9,6 +9,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -85,12 +86,16 @@
       </HBox>
    </top>
    <right>
-      <VBox maxWidth="200.0" minWidth="200.0" prefHeight="722.0" prefWidth="200.0" style="-fx-background-color: #383F51;" BorderPane.alignment="CENTER">
+      <StackPane fx:id="stackPane" BorderPane.alignment="CENTER">
          <children>
-            <JFXHamburger fx:id="hamburger" onMouseClicked="#handleDrawer" prefHeight="77.0" prefWidth="100.0" />
-            <JFXDrawer fx:id="drawer" defaultDrawerSize="200.0" prefHeight="661.0" />
+            <VBox fx:id="optionsBox" maxWidth="200.0" minWidth="200.0" prefHeight="722.0" prefWidth="200.0" style="-fx-background-color: #383F51;">
+               <children>
+                  <JFXHamburger fx:id="hamburger" onMouseClicked="#handleDrawer" prefHeight="77.0" prefWidth="100.0" />
+                  <JFXDrawer fx:id="drawer" defaultDrawerSize="200.0" prefHeight="661.0" />
+               </children>
+            </VBox>
          </children>
-      </VBox>
+      </StackPane>
    </right>
    <center>
       <HBox fx:id="centerBox" prefHeight="100.0" prefWidth="0.0" style="-fx-background-color: black;" BorderPane.alignment="CENTER" />

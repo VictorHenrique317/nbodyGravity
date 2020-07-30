@@ -20,12 +20,12 @@
             </Label>
             <VBox alignment="CENTER" prefHeight="120.0" prefWidth="426.0" spacing="5.0">
                <children>
-                  <JFXButton onMouseClicked="#onSolarSystem" prefHeight="57.0" prefWidth="333.0" text="Solar System" textFill="WHITE">
+                  <JFXButton fx:id="solarSystemButton" onMouseClicked="#onSolarSystem" prefHeight="57.0" prefWidth="333.0" text="Solar System" textFill="WHITE">
                      <font>
                         <Font size="24.0" />
                      </font>
                   </JFXButton>
-                  <JFXButton onMouseClicked="#onCustomSimulation" prefHeight="57.0" prefWidth="333.0" text="Custom Simulation" textFill="WHITE">
+                  <JFXButton fx:id="customSimulationButton" onMouseClicked="#onCustomSimulation" prefHeight="57.0" prefWidth="333.0" text="Custom Simulation" textFill="WHITE">
                      <font>
                         <Font size="24.0" />
                      </font>

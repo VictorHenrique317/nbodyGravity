@@ -72,7 +72,7 @@ public class Main extends Application {
         selectionStage.show();
     }
 
-    static void createMainScene(){
+    static void createMainScene(boolean hasCreationBox){
         threadPool.execute(()->{
             camera.setNearClip(0.01);
             camera.setFarClip(1_000_000);
@@ -99,6 +99,14 @@ public class Main extends Application {
 
             mainGroup.getChildren().add(objectGroup);
 
+            if (hasCreationBox){
+               controller.createOptionBox();
+                subScene.widthProperty().bind(mainScene.widthProperty().subtract(400));
+            }else {
+                subScene.widthProperty().bind(mainScene.widthProperty().subtract(200));
+            }
+            subScene.heightProperty().bind(mainScene.heightProperty().subtract(75));
+
             initMouseCommand(mainScene);
             initKeyboardControl(controller);
             trackObject(centralBody);
@@ -115,7 +123,7 @@ public class Main extends Application {
     static void createCustomSimulation(){
         bodies = new ArrayList<>();
         pool = new GravityPool(GravityPool.Types.Nbody);
-        createMainScene();
+        createMainScene(true);
     }
 
     static void createSolarSystem(){
@@ -126,7 +134,7 @@ public class Main extends Application {
             pool.reduceScaleBy(1e8);
             pool.startSimulation();
         });
-        createMainScene();
+        createMainScene(false);
     }
 
     private static void createBodies() {

@@ -4,9 +4,12 @@ import com.jfoenix.controls.JFXDrawer;
 import com.jfoenix.controls.JFXHamburger;
 import com.jfoenix.controls.JFXRadioButton;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
 import javafx.scene.control.Label;
@@ -14,6 +17,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import sample.physics.models.Body;
@@ -52,6 +56,11 @@ public class MainScene {
     private ImageView firstArrow, secondArrow, thirdArrow, fourthArrow;
     @FXML
     private JFXRadioButton hyperwarpButton;
+    @FXML
+    private VBox optionsBox;
+    @FXML
+    private StackPane stackPane;
+
     private int hyperwarpMultiplier = 1;
 
     public void initialize(){
@@ -231,10 +240,23 @@ public class MainScene {
     }
 
     public void setCenter(SubScene subScene, Scene scene) {
-        subScene.widthProperty().bind(scene.widthProperty().subtract(200));
-        subScene.heightProperty().bind(scene.heightProperty().subtract(75));
+
         centerBox.getChildren().add(subScene);
 
+    }
+
+    public void createOptionBox(){
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(Main.class.getClassLoader().getResource("CreationBox.fxml"));
+        VBox root = null;
+        try {
+            root = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assert root != null;
+//        CreationBox controller = fxmlLoader.getController();
+        borderPane.setLeft(root);
     }
 
 }

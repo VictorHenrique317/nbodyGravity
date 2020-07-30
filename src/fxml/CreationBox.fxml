@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="TOP_CENTER" stylesheets="stylesheet.css" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="724.8" prefWidth="200.0" spacing="25.0" style="-fx-background-color: #383F51;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox spacing="30.0">
+         <children>
+            <VBox alignment="CENTER">
+               <children>
+                  <Label text="Mass" textFill="#e3edfa">
+                     <font>
+                        <Font size="21.0" />
+                     </font>
+                  </Label>
+                  <JFXTextField alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </JFXTextField>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER">
+               <children>
+                  <Label text="Radius" textFill="#e3edfa">
+                     <font>
+                        <Font size="21.0" />
+                     </font>
+                  </Label>
+                  <JFXTextField alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </JFXTextField>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER">
+               <children>
+                  <Label alignment="CENTER" text="Horizontal velocity" textFill="#e3edfa">
+                     <font>
+                        <Font size="21.0" />
+                     </font>
+                  </Label>
+                  <JFXTextField alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </JFXTextField>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER">
+               <children>
+                  <Label text="Vertical velocity" textFill="#e3edfa">
+                     <font>
+                        <Font size="21.0" />
+                     </font>
+                  </Label>
+                  <JFXTextField alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </JFXTextField>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+      <JFXButton fx:id="createButton" prefHeight="62.0" prefWidth="167.0" style="-fx-background-color: #054D0B;" text="Create Object" textFill="#11e823">
+         <font>
+            <Font size="18.0" />
+         </font>
+         <VBox.margin>
+            <Insets top="160.0" />
+         </VBox.margin>
+      </JFXButton>
+      <JFXButton fx:id="deleteButton" prefHeight="62.0" prefWidth="167.0" style="-fx-background-color: #4D050B;" text="Delete Object" textFill="#e81123">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </JFXButton>
+   </children>
+   <padding>
+      <Insets top="20.0" />
+   </padding>
+</VBox>
