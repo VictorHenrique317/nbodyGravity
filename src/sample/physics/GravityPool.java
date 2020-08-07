@@ -2,6 +2,8 @@ package sample.physics;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.util.Duration;
 import sample.physics.models.Body;
 import sample.physics.models.Planet;
@@ -68,6 +70,9 @@ public final class GravityPool {
     }
 
     public void startSimulation() {
+        if (this.G == -1){
+            throw new IllegalStateException("Started simulation without specifying scale reduction");
+        }
         configureGravity(centralBody);
         executor = Executors.newSingleThreadExecutor();
 //        executor.execute(() -> {
@@ -119,9 +124,6 @@ public final class GravityPool {
     }
 
     public void reduceScaleBy(double scaleReduction) {
-        if (bodies.isEmpty()){
-            throw new IllegalStateException("No bodies");
-        }
         this.scaleReduction = scaleReduction;
         this.G = 6.66e-11;
 
@@ -157,10 +159,6 @@ public final class GravityPool {
 
     public void setRadius(double radius){
 
-    }
-
-    public void setG(double value) { //todo remove
-        this.G = value;
     }
 
     public double getG() {

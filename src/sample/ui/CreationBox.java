@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import javafx.fxml.FXML;
 import javafx.scene.Camera;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import sample.physics.models.Body;
@@ -18,11 +19,12 @@ public class CreationBox {
     private JFXTextField massField, radiusField, horizontalField, verticalField;
 
     @FXML
-    private void onCreateButton(){
-        double mass = Integer.parseInt(massField.getText());
-        double radius = Integer.parseInt(radiusField.getText());
-        double horizontalVelocity = Integer.parseInt(horizontalField.getText());
-        double verticalVelocity = Integer.parseInt(verticalField.getText());
+    private void onCreateButton() {
+        Main.stopSimulation();
+        double mass = Double.parseDouble(massField.getText());
+        double radius = Double.parseDouble(radiusField.getText());
+        double horizontalVelocity = Double.parseDouble(horizontalField.getText());
+        double verticalVelocity = Double.parseDouble(verticalField.getText());
 
         Camera camera = Main.getCamera();
         Scene mainScene = Main.getMainScene();
@@ -31,41 +33,35 @@ public class CreationBox {
         double z = camera.getTranslateZ() + 50;
         Image image = new Image(Objects.requireNonNull(
                 getClass().getClassLoader().getResource("sphereIcon.png")).toExternalForm());
-        Body body = new Body(radius, x, y ,z, mass, "Custom Body", image);
+        Body body = new Body(radius, x, y, z, mass, "Custom Body", image);
         Main.addBody(body);
-        System.out.println("Camera x: " + camera.getTranslateX() + " / " + "Camera y: " + camera.getTranslateY());
-        System.out.println("Object x: " + body.getTranslateX() + " / " + "Object y: " + body.getTranslateY());
-        System.out.println("Body z: " + body.getTranslateZ());
+//        System.out.println("Camera x: " + camera.getTranslateX() + " / " + "Camera y: " + camera.getTranslateY());
+//        System.out.println("Object x: " + body.getTranslateX() + " / " + "Object y: " + body.getTranslateY());
+//        System.out.println("Body z: " + body.getTranslateZ());
 
+        mainScene.setOnMouseMoved(mouseEvent -> {
+            double cameraDistance = Main.getCamera().getTranslateZ();
+            cameraDistance = cameraDistance < 0 ? cameraDistance * -1 : cameraDistance; // eliminates negative
+            double deltaX = mouseEvent.getSceneX() - (mainScene.getWidth() / 2);
+            double deltaY = mouseEvent.getSceneY() - (mainScene.getHeight() / 2);
+            deltaX = deltaX / (mainScene.getWidth() / 2); // percentage of motion
+            deltaY = deltaY / (mainScene.getHeight() / 2); // percentage of motion
 
-        new Thread(()->{
-            try{
-                Thread.sleep(3000);
-                mainScene.setOnMouseMoved(mouseEvent -> {
+            double backgroundLength = (cameraDistance * 2 / 3d) * Math.sqrt(3);
+            double backgroundHeight = backgroundLength / Main.getLengthHeightRatio();
 
-                    double deltaX = mouseEvent.getSceneX() - (mainScene.getWidth()/2);
-                    double deltaY = mouseEvent.getSceneY() - (mainScene.getHeight()/2);
-                    deltaX = deltaX / (mainScene.getWidth()/2); // percentage of motion
-                    deltaY = deltaY / (mainScene.getHeight()/2); // percentage of motion
-                    double backgroundLength = 25;
-//                    System.out.println(deltaX + deltaX/2);
-//                    System.out.println("y: " + mouseEvent.getSceneY());
-                    body.setTranslateX(deltaX * backgroundLength);
-                    body.setTranslateY(deltaY * backgroundLength);
-//                    body.setTranslateY((mouseEvent.getSceneY() - (mainScene.getHeight()/2)) / 50);
-                });
-                mainScene.setOnMouseClicked(mouseEvent -> mainScene.setOnMouseMoved(null));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        }).start();
-
-
-
+            body.setTranslateX(deltaX * (backgroundLength / 2));
+            body.setTranslateY(deltaY * (backgroundHeight / 2));
+        });
+        mainScene.setOnMouseClicked(mouseEvent -> {
+            mainScene.setOnMouseMoved(null);
+            Main.startSimulation(body);
+            mainScene.setOnMouseClicked(null);
+        });
     }
+
     @FXML
-    private void onDeleteButton(){
+    private void onDeleteButton() {
 
     }
 

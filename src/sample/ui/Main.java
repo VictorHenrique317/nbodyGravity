@@ -7,6 +7,8 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.*;
 import javafx.scene.image.ImageView;
@@ -17,6 +19,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
@@ -42,6 +45,7 @@ public class Main extends Application {
     private static Stage mainStage;
     private static Stage selectionStage;
     private static Scene mainScene;
+    private static SubScene subScene;
     private static SelectionWindow selectionWindowController;
     public static final Group objectGroup = new Group();
     private static final Group mainGroup = new Group();
@@ -57,9 +61,7 @@ public class Main extends Application {
     private static Rotate xRotate;
     private static Rotate yRotate;
 
-    public static Camera getCamera() {
-        return camera;
-    }
+
 
 
     @Override
@@ -92,7 +94,7 @@ public class Main extends Application {
             assert root != null;
             MainScene controller = fxmlLoader.getController();
             mainScene = new Scene(root, 1200, 800, true);
-            SubScene subScene = new SubScene(mainGroup, 1200, 700, true, SceneAntialiasing.BALANCED);
+            subScene = new SubScene(mainGroup, 1200, 700, true, SceneAntialiasing.BALANCED);
             subScene.setFill(Color.BLACK);
             subScene.setCamera(camera);
             primaryStage = mainStage;
@@ -128,7 +130,11 @@ public class Main extends Application {
     static void createCustomSimulation(){
         bodies = new ArrayList<>();
         pool = new GravityPool(GravityPool.Types.Nbody);
+        pool.addAll(bodies);
+        pool.reduceScaleBy(1);
         createMainScene(true);
+        pool.startSimulation();
+
     }
 
     static void createSolarSystem(){
@@ -142,6 +148,68 @@ public class Main extends Application {
         createMainScene(false);
     }
 
+    static void startSimulation(Body newBody){ //todo fix
+        mainGroup.getChildren().remove(newBody);
+        objectGroup.getChildren().add(newBody);
+//        if(objectGroup.getChildren().size() > 1) objectGroup.getTransforms().clear();
+        double xAngle = 0;
+        double yAngle = 0;
+        for (Transform transform: objectGroup.getTransforms()){
+            Rotate rotate = ((Rotate)transform);
+            if (rotate.getAxis() == Rotate.X_AXIS){
+                xAngle = rotate.getAngle();
+            }else if (rotate.getAxis() == Rotate.Y_AXIS){
+                yAngle = rotate.getAngle();
+            }
+            ((Rotate) transform).setAngle(0);
+        }
+        objectGroup.getTransforms().clear();
+        objectGroup.setRotationAxis(Rotate.X_AXIS);
+        objectGroup.setRotate(xAngle);
+        objectGroup.setRotationAxis(Rotate.Y_AXIS);
+        objectGroup.setRotate(yAngle);
+        initMouseCommand(mainScene);
+//       Rotate xRotate = new Rotate(0, Rotate.X_AXIS);
+//       Rotate yRotate = new Rotate(0, Rotate.Y_AXIS);
+//       xRotate.setPivotX(0);
+//       xRotate.setPivotY(0);
+//       xRotate.setPivotZ(0);
+//
+//       yRotate.setPivotX(0);
+//       yRotate.setPivotY(0);
+//       yRotate.setPivotZ(0);
+
+        System.out.println("xAngle is " + xAngle);
+        System.out.println("yAngle is " + yAngle);
+//       xRotate.setAngle(xAngle);
+//       yRotate.setAngle(yAngle);
+//       newBody.getTransforms().addAll(xRotate, yRotate);
+//       Timeline til = new Timeline(new KeyFrame(
+//               Duration.millis(5000),
+//               new KeyValue(xRotate.angleProperty(), 360)
+//       ));
+//        Timeline til2 = new Timeline(new KeyFrame(
+//                Duration.millis(50),
+//                (e)->{
+//                    yRotate.setAngle(yRotate.getAngle() + 10);
+//                    System.out.println(yRotate.getAngle());
+//                }
+//        ));
+//        til2.setCycleCount(Timeline.INDEFINITE);
+//        initMouseCommand(mainScene);
+//        til.play();
+//        til2.play();
+
+        pool.startSimulation();
+    }
+
+    static void stopSimulation(){
+        pool.stopSimulation();
+    }
+    static void refreshSimulation(){
+        pool.stopSimulation();
+        pool.startSimulation();
+    }
     private static void createBodies() {
         Star sun = Star.sun();
         centralBody = sun;
@@ -168,7 +236,6 @@ public class Main extends Application {
         objectGroup.getChildren().add(light);
     }
 
-
     private static void initKeyboardControl(MainScene controller) {
         primaryStage.addEventHandler(KeyEvent.KEY_PRESSED, (event) -> {
             if (event.getCode() == KeyCode.PERIOD) controller.accelerateSimulation();
@@ -182,6 +249,17 @@ public class Main extends Application {
                 yRotate = new Rotate(0, Rotate.Y_AXIS)
         );
 
+//        xRotate = new Rotate(0, Rotate.X_AXIS);
+//        xRotate.setPivotX(0);
+//        xRotate.setPivotY(0);
+//        xRotate.setPivotZ(0);
+//        yRotate = new Rotate(0, Rotate.Y_AXIS);
+//        yRotate.setPivotX(0);
+//        yRotate.setPivotY(0);
+//        yRotate.setPivotZ(0);
+//        for (Node node: objectGroup.getChildren()){
+//            node.getTransforms().addAll(xRotate, yRotate);
+//        }
         xRotate.angleProperty().bind(xAngle);
         yRotate.angleProperty().bind(yAngle);
 
@@ -308,7 +386,9 @@ public class Main extends Application {
 
     static void addBody(Body body){
         bodies.add(body);
-        objectGroup.getChildren().add(body);
+        pool.add(body);
+//        objectGroup.getChildren().add(body);
+        mainGroup.getChildren().add(body);
     }
 
     static Collection<Body> getBodies() {
@@ -317,6 +397,18 @@ public class Main extends Application {
 
     static Scene getMainScene(){
         return mainScene;
+    }
+
+    public static Camera getCamera() {
+        return camera;
+    }
+
+    public static double getLengthHeightRatio() {
+        return mainStage.getWidth() / mainStage.getHeight();
+    }
+
+    public static SubScene getSubscene(){
+        return subScene;
     }
 
     static boolean isIsCameraLocked() {
