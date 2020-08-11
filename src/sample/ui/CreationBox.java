@@ -16,53 +16,35 @@ public class CreationBox {
     @FXML
     private JFXButton createButton, deleteButton;
     @FXML
-    private JFXTextField massField, radiusField, horizontalField, verticalField;
+    private JFXTextField massField, radiusField, horizontalField, verticalField, xField, yField, zField, zVelocityField;
 
     @FXML
     private void onCreateButton() {
-        Main.stopSimulation();
-        double mass = Double.parseDouble(massField.getText());
-        double radius = Double.parseDouble(radiusField.getText());
-        double horizontalVelocity = Double.parseDouble(horizontalField.getText());
-        double verticalVelocity = Double.parseDouble(verticalField.getText());
+        try {
+            Main.stopSimulation();
+            double mass = Double.parseDouble(massField.getText());
+            double radius = Double.parseDouble(radiusField.getText());
+            double horizontalVelocity = Double.parseDouble(horizontalField.getText());
+            double verticalVelocity = Double.parseDouble(verticalField.getText());
+            double zVelocity = Double.parseDouble(zVelocityField.getText());
 
-        Camera camera = Main.getCamera();
-        Scene mainScene = Main.getMainScene();
-        double x = camera.getTranslateX();
-        double y = camera.getTranslateY();
-        double z = camera.getTranslateZ() + 50;
-        Image image = new Image(Objects.requireNonNull(
-                getClass().getClassLoader().getResource("sphereIcon.png")).toExternalForm());
-        Body body = new Body(radius, x, y, z, mass, "Custom Body", image);
-        Main.addBody(body);
-//        System.out.println("Camera x: " + camera.getTranslateX() + " / " + "Camera y: " + camera.getTranslateY());
-//        System.out.println("Object x: " + body.getTranslateX() + " / " + "Object y: " + body.getTranslateY());
-//        System.out.println("Body z: " + body.getTranslateZ());
+            double x = Double.parseDouble(xField.getText());
+            double y = Double.parseDouble(yField.getText());
+            double z = Double.parseDouble(zField.getText());
+            Image image = new Image(Objects.requireNonNull(
+                    getClass().getClassLoader().getResource("sphereIcon.png")).toExternalForm());
+            Body body = new Body(radius, x, y, z, mass, "Custom Body", image);
+            body.setxVelocity(horizontalVelocity);
+            body.setyVelocity(verticalVelocity);
+            body.setzVelocity(zVelocity);
+            Main.addBody(body);
+        }catch (NumberFormatException e){
 
-        mainScene.setOnMouseMoved(mouseEvent -> {
-            double cameraDistance = Main.getCamera().getTranslateZ();
-            cameraDistance = cameraDistance < 0 ? cameraDistance * -1 : cameraDistance; // eliminates negative
-            double deltaX = mouseEvent.getSceneX() - (mainScene.getWidth() / 2);
-            double deltaY = mouseEvent.getSceneY() - (mainScene.getHeight() / 2);
-            deltaX = deltaX / (mainScene.getWidth() / 2); // percentage of motion
-            deltaY = deltaY / (mainScene.getHeight() / 2); // percentage of motion
-
-            double backgroundLength = (cameraDistance * 2 / 3d) * Math.sqrt(3);
-            double backgroundHeight = backgroundLength / Main.getLengthHeightRatio();
-
-            body.setTranslateX(deltaX * (backgroundLength / 2));
-            body.setTranslateY(deltaY * (backgroundHeight / 2));
-        });
-        mainScene.setOnMouseClicked(mouseEvent -> {
-            mainScene.setOnMouseMoved(null);
-            Main.startSimulation(body);
-            mainScene.setOnMouseClicked(null);
-        });
+        }
     }
 
     @FXML
     private void onDeleteButton() {
-
+        Main.clearObjects();
     }
-
 }

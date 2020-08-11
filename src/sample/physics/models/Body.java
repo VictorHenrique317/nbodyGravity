@@ -20,15 +20,15 @@ public class Body extends Sphere {
     private double yVelocity = 0;
     private double zVelocity = 0;
 
-    public Body(double baseRadius, double mass, String name, Image icon ){
+    public Body(double baseRadius, double mass, String name, Image icon) {
         this(baseRadius, 0, 0, 0, mass, name, icon);
     }
 
-    public Body(double baseRadius, double z, double mass, String name, Image icon){
+    public Body(double baseRadius, double z, double mass, String name, Image icon) {
         this(baseRadius, 0, 0, z, mass, name, icon);
     }
 
-    public Body(double baseRadius, double z, double y, double mass, String name, Image icon){
+    public Body(double baseRadius, double z, double y, double mass, String name, Image icon) {
         this(baseRadius, 0, y, z, mass, name, icon);
     }
 
@@ -46,18 +46,27 @@ public class Body extends Sphere {
         pathMaterial.setDiffuseColor(Color.RED);
     }
 
-    public void setxVelocity(double vel){
+    public void setxVelocity(double vel) {
         this.xVelocity = vel;
     }
 
-    public void setyVelocity(double vel){
-//        this.yVelocity = vel;
+    public void setyVelocity(double vel) {
+        this.yVelocity = vel;
     }
 
-    public void beAttractedBy(Collection<Body> bodies, double precision, double simulationG){
-        for (Body body : bodies){
-            if (body == this) continue;
-            beAttractedBy(body, precision, simulationG);
+    public void setzVelocity(double vel) {
+        this.zVelocity = vel;
+    }
+
+    public void beAttractedBy(Collection<Body> bodies, double precision, double simulationG) {
+        for (Body body : bodies) {
+            if (body == this && bodies.size() > 1) { // multiple bodies, no self attraction
+                continue;
+            }else if (bodies.size() == 1){ // single body
+                move(precision);
+            }else { // multiple bodies, this being attracted by another
+                beAttractedBy(body, precision, simulationG);
+            }
         }
     }
 
@@ -71,12 +80,12 @@ public class Body extends Sphere {
         double distance = distanceTo(body);
 
         double force = simulationG * (this.mass * body.mass / Math.pow(distance, 2)); // newton's gravitation
-        if (distance <= this.getRadius()){
+        if (distance <= this.getRadius()) {
             System.out.println(this.name + " bumped, distance is " + distance + " radius is " + this.getRadius());
             return;
         }
-        double sine =  yOffset/distance;
-        double cosine = xOffset/distance;
+        double sine = yOffset / distance;
+        double cosine = xOffset / distance;
         double zSine = zOffset / distance;
 
         double forceX = force * cosine;
@@ -84,10 +93,13 @@ public class Body extends Sphere {
         double forceZ = force * zSine;
 
         // f/m * s^2 = distance to travel on the axis
-        this.xVelocity += (forceX/this.mass) * precision;
-        this.yVelocity += (forceY/this.mass) * precision;
-        this.zVelocity += (forceZ/this.mass) * precision;
+        this.xVelocity += (forceX / this.mass) * precision;
+        this.yVelocity += (forceY / this.mass) * precision;
+        this.zVelocity += (forceZ / this.mass) * precision;
+        move(precision);
+    }
 
+    private void move(double precision) {
         double xDistance = this.xVelocity * precision;
         double yDistance = this.yVelocity * precision;
         double zDistance = this.zVelocity * precision;
@@ -97,7 +109,8 @@ public class Body extends Sphere {
         this.setTranslateZ(this.getTranslateZ() + zDistance);
 
     }
-    public double distanceTo(Body body){
+
+    public double distanceTo(Body body) {
         double xOffset = body.getTranslateX() - this.getTranslateX();
         double yOffset = body.getTranslateY() - this.getTranslateY();
         double zOffset = body.getTranslateZ() - this.getTranslateZ();
@@ -142,4 +155,6 @@ public class Body extends Sphere {
     public double getBaseRadius() {
         return baseRadius;
     }
+
+
 }

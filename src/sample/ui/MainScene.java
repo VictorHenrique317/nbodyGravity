@@ -100,6 +100,32 @@ public class MainScene {
         }
     }
 
+    public void createOptionBox(){
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(Main.class.getClassLoader().getResource("CreationBox.fxml"));
+        VBox root = null;
+        try {
+            root = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assert root != null;
+        borderPane.setLeft(root);
+    }
+
+    public void createCustomOptions() {
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(Main.class.getClassLoader().getResource("CustomOptions.fxml"));
+        VBox root = null;
+        try {
+            root = fxmlLoader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assert root != null;
+        optionsBox.getChildren().clear();
+        optionsBox.getChildren().add(root);
+    }
 
     @FXML
     private void onLockCamera(){
@@ -235,28 +261,11 @@ public class MainScene {
         onFirstArrowClick();
     }
 
+    public void setCenter(SubScene subScene, Scene scene) {
+        centerBox.getChildren().add(subScene);
+    }
+
     public BorderPane getBorderPane() {
         return borderPane;
     }
-
-    public void setCenter(SubScene subScene, Scene scene) {
-
-        centerBox.getChildren().add(subScene);
-
-    }
-
-    public void createOptionBox(){
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(Main.class.getClassLoader().getResource("CreationBox.fxml"));
-        VBox root = null;
-        try {
-            root = fxmlLoader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        assert root != null;
-//        CreationBox controller = fxmlLoader.getController();
-        borderPane.setLeft(root);
-    }
-
 }

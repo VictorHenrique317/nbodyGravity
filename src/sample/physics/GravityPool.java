@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
 
 public final class GravityPool {
     private final Body centralBody;
-    private ArrayList<Body> bodies;
+    private ObservableList<Body> bodies;
     private Collection<Timeline> translationTimeLines;
     private double G = -1;
     private boolean flag = true;
@@ -28,15 +28,15 @@ public final class GravityPool {
     private boolean showPath;
     private double scaleReduction = 1;
 
-    public GravityPool(Types simulationType) {
-        this(simulationType, null);
+    public GravityPool(Types simulationType, ObservableList<Body> bodyList) {
+        this(simulationType, null, bodyList);
         if (simulationType == Types.classic){
             throw new IllegalArgumentException("Didn't set central body for \"classic\" simulation type");
         }
     }
-    public GravityPool(Types simulationType, Body centralBody) {
-        bodies = new ArrayList<>();
+    public GravityPool(Types simulationType, Body centralBody, ObservableList<Body> bodies) {
         translationTimeLines = new ArrayList<>();
+        this.bodies = bodies;
         this.speed = 1;
         this.centralBody = centralBody;
         this.simulationType = simulationType;
@@ -46,23 +46,7 @@ public final class GravityPool {
         for (Timeline timeline : this.translationTimeLines) {
             timeline.stop();
         }
-//        for (Body body: bodies){
-//            if (body instanceof Planet){
-//                ((Planet) body).stopRotation();
-//            }
-//        }
         this.translationTimeLines.clear();
-//        this.executor.shutdown();
-//        this.executor = null;
-    }
-
-
-    public void add(Body body) {
-        this.bodies.add(body);
-    }
-
-    public void addAll(Collection<Body> bodies) {
-        this.bodies.addAll(bodies);
     }
 
     public Collection<Body> getBodies() {
@@ -74,8 +58,6 @@ public final class GravityPool {
             throw new IllegalStateException("Started simulation without specifying scale reduction");
         }
         configureGravity(centralBody);
-        executor = Executors.newSingleThreadExecutor();
-//        executor.execute(() -> {
             for (Timeline timeline : translationTimeLines) {
                 timeline.play();
             }
@@ -87,7 +69,6 @@ public final class GravityPool {
                     }
                 }
             }
-//        });
     }
 
     private void configureGravity(Body centralBody) {
@@ -97,7 +78,7 @@ public final class GravityPool {
         for (Body i : bodies) {
             if (simulationType == Types.Nbody) {
                 til = new Timeline(new KeyFrame(
-                        Duration.millis(delay / (speed / 2)),
+                        Duration.millis(delay),
                         (e) -> {
                             i.beAttractedBy(bodies, delay * speed / 1000d, G);
                             i.showPath(showPath);

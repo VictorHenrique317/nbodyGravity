@@ -7,15 +7,15 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="TOP_CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="724.8" prefWidth="200.0" spacing="25.0" style="-fx-background-color: #383F51;" stylesheets="stylesheet.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.ui.CreationBox">
+<VBox alignment="TOP_CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="724.8" prefWidth="200.0" spacing="15.0" style="-fx-background-color: #383F51;" stylesheets="stylesheet.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.ui.CreationBox">
    <children>
-      <VBox spacing="30.0">
+      <VBox spacing="8.0">
          <children>
-            <VBox alignment="CENTER">
+            <VBox alignment="CENTER" prefHeight="31.0" prefWidth="143.0">
                <children>
                   <Label text="Mass" textFill="#e3edfa">
                      <font>
-                        <Font size="21.0" />
+                        <Font size="18.0" />
                      </font>
                   </Label>
                   <JFXTextField fx:id="massField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
@@ -29,7 +29,7 @@
                <children>
                   <Label text="Radius" textFill="#e3edfa">
                      <font>
-                        <Font size="21.0" />
+                        <Font size="18.0" />
                      </font>
                   </Label>
                   <JFXTextField fx:id="radiusField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
@@ -43,7 +43,7 @@
                <children>
                   <Label alignment="CENTER" text="Horizontal velocity" textFill="#e3edfa">
                      <font>
-                        <Font size="21.0" />
+                        <Font size="18.0" />
                      </font>
                   </Label>
                   <JFXTextField fx:id="horizontalField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
@@ -57,10 +57,66 @@
                <children>
                   <Label text="Vertical velocity" textFill="#e3edfa">
                      <font>
-                        <Font size="21.0" />
+                        <Font size="18.0" />
                      </font>
                   </Label>
                   <JFXTextField fx:id="verticalField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </JFXTextField>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER">
+               <children>
+                  <Label text="Z Velocity" textFill="#e3edfa">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <JFXTextField fx:id="zVelocityField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </JFXTextField>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER">
+               <children>
+                  <Label text="X" textFill="#e3edfa">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <JFXTextField alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36" fx:id="xField">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </JFXTextField>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER">
+               <children>
+                  <Label text="Y" textFill="#e3edfa">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <JFXTextField fx:id="yField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
+                     <font>
+                        <Font size="13.0" />
+                     </font>
+                  </JFXTextField>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER">
+               <children>
+                  <Label text="Z" textFill="#e3edfa">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <JFXTextField fx:id="zField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -74,10 +130,10 @@
             <Font size="18.0" />
          </font>
          <VBox.margin>
-            <Insets top="160.0" />
+            <Insets />
          </VBox.margin>
       </JFXButton>
-      <JFXButton fx:id="deleteButton" onAction="#onDeleteButton" prefHeight="62.0" prefWidth="167.0" style="-fx-background-color: #4D050B;" text="Delete Object" textFill="#e81123">
+      <JFXButton fx:id="deleteButton" onAction="#onDeleteButton" prefHeight="62.0" prefWidth="167.0" style="-fx-background-color: #4D050B;" text="Clear" textFill="#e81123">
          <font>
             <Font size="18.0" />
          </font>
