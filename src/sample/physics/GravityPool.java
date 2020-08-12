@@ -2,7 +2,6 @@ package sample.physics;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.util.Duration;
 import sample.physics.models.Body;
@@ -24,7 +23,7 @@ public final class GravityPool {
 
     private double speed;
     private double delay;
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private ExecutorService threadPool = Executors.newCachedThreadPool();
     private boolean showPath;
     private double scaleReduction = 1;
 
@@ -46,6 +45,11 @@ public final class GravityPool {
         for (Timeline timeline : this.translationTimeLines) {
             timeline.stop();
         }
+        if (threadPool != null){
+            System.out.println("stopping");
+            this.threadPool.shutdownNow();
+            this.threadPool = null;
+        }
         this.translationTimeLines.clear();
     }
 
@@ -57,14 +61,18 @@ public final class GravityPool {
         if (this.G == -1){
             throw new IllegalStateException("Started simulation without specifying scale reduction");
         }
+        stopSimulation();
+        threadPool = Executors.newCachedThreadPool();
         configureGravity(centralBody);
             for (Timeline timeline : translationTimeLines) {
-                timeline.play();
+                threadPool.execute(timeline::play);
+//                timeline.play();
             }
             if (flag){
                 flag = false;
                 for (Body body: bodies){
                     if (body instanceof Planet){
+                        System.out.println("starting rotation");
                         ((Planet) body).startRotation();
                     }
                 }
@@ -77,6 +85,7 @@ public final class GravityPool {
         Timeline til;
         for (Body i : bodies) {
             if (simulationType == Types.Nbody) {
+                System.out.println("new body");
                 til = new Timeline(new KeyFrame(
                         Duration.millis(delay),
                         (e) -> {
@@ -84,6 +93,7 @@ public final class GravityPool {
                             i.showPath(showPath);
                         }));
             }else {
+                System.out.println("wrong");
                 til = new Timeline(new KeyFrame(
                         Duration.millis(delay / (speed / 2)),
                         (e) -> {
@@ -97,7 +107,6 @@ public final class GravityPool {
     }
 
     public void changeSpeed(double speed) {
-//        speed *= 1/10;
         stopSimulation();
         if (speed > 0) this.speed = speed;
         System.out.println("Changing speed to " + this.speed);

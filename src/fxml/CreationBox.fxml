@@ -18,7 +18,7 @@
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <JFXTextField fx:id="massField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
+                  <JFXTextField fx:id="massField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" onKeyReleased="#onInputReleased" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -32,7 +32,7 @@
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <JFXTextField fx:id="radiusField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
+                  <JFXTextField fx:id="radiusField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" onKeyReleased="#onInputReleased" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -46,7 +46,7 @@
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <JFXTextField fx:id="horizontalField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
+                  <JFXTextField fx:id="horizontalField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" onKeyReleased="#onInputReleased" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -60,7 +60,7 @@
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <JFXTextField fx:id="verticalField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
+                  <JFXTextField fx:id="verticalField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" onKeyReleased="#onInputReleased" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -74,7 +74,7 @@
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <JFXTextField fx:id="zVelocityField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
+                  <JFXTextField fx:id="zVelocityField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" onKeyReleased="#onInputReleased" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -88,7 +88,7 @@
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <JFXTextField alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36" fx:id="xField">
+                  <JFXTextField alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" onKeyReleased="#onInputReleased" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36" fx:id="xField">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -102,7 +102,7 @@
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <JFXTextField fx:id="yField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
+                  <JFXTextField fx:id="yField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" onKeyReleased="#onInputReleased" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -116,7 +116,7 @@
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <JFXTextField fx:id="zField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
+                  <JFXTextField fx:id="zField" alignment="CENTER" focusColor="#e3edfa" maxWidth="160.0" onKeyReleased="#onInputReleased" prefHeight="26.0" prefWidth="160.0" style="-fx-text-inner-color: white;" unFocusColor="#252a36">
                      <font>
                         <Font size="13.0" />
                      </font>
@@ -133,9 +133,9 @@
             <Insets />
          </VBox.margin>
       </JFXButton>
-      <JFXButton fx:id="deleteButton" onAction="#onDeleteButton" prefHeight="62.0" prefWidth="167.0" style="-fx-background-color: #4D050B;" text="Clear" textFill="#e81123">
+      <JFXButton fx:id="deleteButton" onAction="#onDeleteButton" prefHeight="62.0" prefWidth="167.0" style="-fx-background-color: #4D050B;" text="Delete Last Object" textFill="#e81123">
          <font>
-            <Font size="18.0" />
+            <Font size="16.0" />
          </font>
       </JFXButton>
    </children>

@@ -7,16 +7,50 @@ import javafx.scene.Camera;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import sample.physics.models.Body;
 
-import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class CreationBox {
+    private final List<JFXTextField> inputs = new ArrayList<>();
     @FXML
     private JFXButton createButton, deleteButton;
     @FXML
     private JFXTextField massField, radiusField, horizontalField, verticalField, xField, yField, zField, zVelocityField;
+
+    public void initialize() {
+        createButton.setDisable(true);
+        inputs.addAll(List.of(massField, radiusField, horizontalField,
+                verticalField, xField, yField, zField, zVelocityField));
+
+    }
+
+    public void enableDeleteButton(){
+        deleteButton.setDisable(false);
+    }
+
+    public void disableDeleteButton(){
+        deleteButton.setDisable(true);
+    }
+    @FXML
+    private void onInputReleased() {
+        try {
+            if (Double.parseDouble(massField.getText()) <= 0 ||
+                Double.parseDouble(radiusField.getText()) <= 0){ // invalid
+                throw new NumberFormatException();
+            }
+            for (JFXTextField field : inputs) {
+                Double.parseDouble(field.getText()); // valid input
+            }
+            createButton.setDisable(false); // all  inputs are valid
+        } catch (NumberFormatException e) {
+            createButton.setDisable(true);
+        }
+    }
 
     @FXML
     private void onCreateButton() {
@@ -38,13 +72,13 @@ public class CreationBox {
             body.setyVelocity(verticalVelocity);
             body.setzVelocity(zVelocity);
             Main.addBody(body);
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
 
         }
     }
 
     @FXML
     private void onDeleteButton() {
-        Main.clearObjects();
+        Main.deleteLastObject();
     }
 }

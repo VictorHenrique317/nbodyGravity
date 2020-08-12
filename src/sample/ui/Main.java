@@ -7,13 +7,13 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 import javafx.stage.Stage;
@@ -25,6 +25,7 @@ import sample.physics.models.Planet;
 import sample.physics.models.Star;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
@@ -36,19 +37,20 @@ public class Main extends Application {
     private static boolean isCameraLocked = false;
     private static boolean isRadiusIncreased = false;
     private static ExecutorService radiusHandler = Executors.newSingleThreadExecutor();
-    private static SimpleDoubleProperty cameraZ =  new SimpleDoubleProperty(0);
+    private static SimpleDoubleProperty cameraZ = new SimpleDoubleProperty(0);
     // ================================= Mechanics ================================= //
     private static Stage mainStage;
     private static Stage selectionStage;
     private static Scene mainScene;
     private static SubScene subScene;
+    private static MainScene controller;
     private static SelectionWindow selectionWindowController;
     public static final Group objectGroup = new Group();
     private static final Group mainGroup = new Group();
     private static GravityPool pool;
     private static Body lockedObject;
     private static Body centralBody = null;
-    private static ExecutorService threadPool = Executors.newFixedThreadPool(1);
+    private static ExecutorService thread = Executors.newSingleThreadExecutor();
     // ================================= Rotation ================================= //
     private static double xAnchor, yAnchor, xAngleAnchor, yAngleAnchor;
     private static ObservableList<Body> bodies;
@@ -57,6 +59,7 @@ public class Main extends Application {
     private static Rotate xRotate;
     private static Rotate yRotate;
     private static boolean custom;
+
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -69,12 +72,11 @@ public class Main extends Application {
         Scene scene = new Scene(root, 600, 400);
         selectionStage.setScene(scene);
         selectionStage.initStyle(StageStyle.UNDECORATED);
-
         selectionStage.show();
     }
 
-    static void createMainScene(boolean hasCreationBox){
-        threadPool.execute(()->{
+    static void createMainScene(boolean hasCreationBox) {
+        thread.execute(() -> {
             camera.setNearClip(0.01);
             camera.setFarClip(1_000_000);
             camera.setTranslateZ(-50);
@@ -84,37 +86,40 @@ public class Main extends Application {
             Parent root = null;
             try {
                 root = fxmlLoader.load();
-            }catch (IOException e) { e.printStackTrace();}
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             assert root != null;
-            MainScene controller = fxmlLoader.getController();
+            controller = fxmlLoader.getController();
             mainScene = new Scene(root, 1200, 800, true);
             subScene = new SubScene(mainGroup, 1200, 700, true, SceneAntialiasing.BALANCED);
             subScene.setFill(Color.BLACK);
             subScene.setCamera(camera);
             primaryStage = mainStage;
             primaryStage.setTitle("");
-            Platform.runLater(()-> primaryStage.setScene(mainScene));
+            Platform.runLater(() -> primaryStage.setScene(mainScene));
 
             controller.setCenter(subScene, mainScene);
             controller.setGravityPool(pool);
 
             mainGroup.getChildren().add(objectGroup);
 
-            if (hasCreationBox){
-               controller.createOptionBox();
+            if (hasCreationBox) {
+                controller.createOptionBox();
+                controller.disableDeleteButton();
                 subScene.widthProperty().bind(mainScene.widthProperty().subtract(400));
-            }else {
+            } else {
                 subScene.widthProperty().bind(mainScene.widthProperty().subtract(200));
             }
             subScene.heightProperty().bind(mainScene.heightProperty().subtract(75));
 
-            if (custom){
+            if (custom) {
                 controller.createCustomOptions();
             }
             initMouseCommand(mainScene);
             initKeyboardControl(controller);
             trackObject(centralBody);
-            Platform.runLater(()->{
+            Platform.runLater(() -> {
                 selectionStage.close();
                 selectionWindowController.stop();
                 primaryStage.show();
@@ -122,17 +127,27 @@ public class Main extends Application {
         });
     }
 
-    static void createCustomSimulation(){
+    static void createCustomSimulation() {
         custom = true;
         bodies = FXCollections.observableArrayList();
+        bodies.addListener(new ListChangeListener<Body>() {
+            @Override
+            public void onChanged(Change<? extends Body> change) {
+                if (bodies.size() == 0) {
+                    controller.disableDeleteButton();
+                } else {
+                    controller.enableDeleteButton();
+                }
+            }
+        });
         pool = new GravityPool(GravityPool.Types.Nbody, bodies);
         pool.reduceScaleBy(1);
         createMainScene(true);
     }
 
-    static void createSolarSystem(){
+    static void createSolarSystem() {
         custom = false;
-        threadPool.execute(()->{
+        thread.execute(() -> {
             createBodies();
             pool = new GravityPool(GravityPool.Types.classic, bodies.get(0), bodies);
             pool.reduceScaleBy(1e8);
@@ -166,28 +181,31 @@ public class Main extends Application {
         objectGroup.getChildren().add(light);
     }
 
-    static void addBody(Body body){
+    static void addBody(Body body) {
         bodies.add(body);
         objectGroup.getChildren().add(body);
+    }
+
+    public static void deleteLastObject() {
+        int objectListSize = objectGroup.getChildren().size();
+        int bodyListSize = bodies.size();
+        objectGroup.getChildren().remove(objectListSize - 1);
+        bodies.remove(bodyListSize - 1);
+        stopSimulation();
     }
 
     public static void clearObjects() {
         objectGroup.getChildren().clear();
         bodies.clear();
-//        refreshSimulation();
+        stopSimulation();
     }
-
-//    static void refreshSimulation(){
-//        pool.stopSimulation();
-//        pool.startSimulation();
-//    }
 
     public static void startSimulation() {
         pool.stopSimulation();
         pool.startSimulation();
     }
 
-        static void stopSimulation(){
+    static void stopSimulation() {
         pool.stopSimulation();
     }
 
@@ -239,9 +257,9 @@ public class Main extends Application {
         primaryStage.addEventHandler(ScrollEvent.SCROLL, (scrollEvent -> {
             double mouseDelta = scrollEvent.getDeltaY(); // zoom in > 0 / zoom out < 0
             double zDelta;
-            if (lockedObject == null){
+            if (lockedObject == null) {
                 zDelta = camera.getTranslateZ();
-            }else{
+            } else {
                 zDelta = camera.getTranslateZ() - lockedObject.getTranslateZ();
                 if (zDelta >= (lockedObject.getRadius() * -2)) {
                     if (mouseDelta > 0) {
@@ -265,7 +283,7 @@ public class Main extends Application {
     }
 
     public static void trackObject(Body body) {
-        if (centralBody == null){
+        if (centralBody == null) {
             System.out.println("No object to track");
             cameraZ.set(-50);
             camera.translateZProperty().bind(cameraZ);
@@ -292,6 +310,7 @@ public class Main extends Application {
     }
 
     static void lockCamera() {
+        if (lockedObject == null) return;
         if (!isCameraLocked) {
             isCameraLocked = true;
             camera.translateZProperty().bind(lockedObject.translateZProperty().add
@@ -335,11 +354,11 @@ public class Main extends Application {
         return isCameraLocked;
     }
 
-    static Scene getMainScene(){
+    static Scene getMainScene() {
         return mainScene;
     }
 
-    public static SubScene getSubscene(){
+    public static SubScene getSubscene() {
         return subScene;
     }
 
@@ -361,16 +380,18 @@ public class Main extends Application {
 
     @Override
     public void stop() throws Exception {
-        try{
+        try {
             pool.stopSimulation();
             radiusHandler.shutdown();
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             // pass
         }
-        for (Body body: bodies){
-            if (body instanceof Planet){ ((Planet) body).stopRotation(); }
+        for (Body body : bodies) {
+            if (body instanceof Planet) {
+                ((Planet) body).stopRotation();
+            }
         }
-        threadPool.shutdown();
+        thread.shutdown();
         super.stop();
     }
 }

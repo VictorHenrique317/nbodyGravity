@@ -16,5 +16,10 @@
             <Font size="18.0" />
          </font>
       </JFXButton>
+      <JFXButton fx:id="clearButton" onAction="#onClearButton" prefHeight="62.0" prefWidth="167.0" style="-fx-background-color: #4D050B;" text="Clear simulation" textFill="#e81123">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </JFXButton>
    </children>
 </VBox>

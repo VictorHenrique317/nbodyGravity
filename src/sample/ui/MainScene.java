@@ -27,20 +27,22 @@ import java.io.IOException;
 import java.util.*;
 
 public class MainScene {
-    private static Collection<ImageView> arrows;
-    private static Collection<DrawerIcon> drawerIcons;
-    private GravityPool pool;
-    private double speed;
-    private Collection<Body> bodies;
-
     private enum Arrows {First, Second, Third, Fourth};
     private Arrows currentArrow;
-
+    private static Collection<ImageView> arrows;
     private final Image filledArrow = new Image(Objects.requireNonNull(
             getClass().getClassLoader().getResource("next_arrow_filled.png")).toExternalForm());
     private final Image emptyArrow = new Image(Objects.requireNonNull(
             getClass().getClassLoader().getResource("next_arrow.png")).toExternalForm()
     );
+    private static Collection<DrawerIcon> drawerIcons;
+
+    private GravityPool pool;
+    private double speed;
+    private Collection<Body> bodies;
+
+    private CreationBox creationBox;
+
     private VBox drawerContent;
     @FXML
     private HBox lockCameraBox;
@@ -110,7 +112,16 @@ public class MainScene {
             e.printStackTrace();
         }
         assert root != null;
+        creationBox = fxmlLoader.getController();
         borderPane.setLeft(root);
+    }
+
+    public void enableDeleteButton(){
+        creationBox.enableDeleteButton();
+    }
+
+    public void disableDeleteButton() {
+        creationBox.disableDeleteButton();
     }
 
     public void createCustomOptions() {

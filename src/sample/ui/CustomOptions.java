@@ -12,4 +12,8 @@ public class CustomOptions {
     private void onStop(){
         Main.stopSimulation();
     }
+    @FXML
+    private void onClearButton(){
+        Main.clearObjects();
+    }
 }
